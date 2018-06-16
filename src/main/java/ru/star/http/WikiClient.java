@@ -33,7 +33,7 @@ public class WikiClient {
         try {
             return executeRequest((new URIBuilder(WIKI_API_URL)
                     .setParameter("action", "query")
-                    .setParameter("format", "xml")
+                    .setParameter("format", "json")
                     .setParameter("list", "categorymembers")
                     .setParameter("cmprop", "title|type|ids")
                     .setParameter("cmlimit", "500")
@@ -49,7 +49,7 @@ public class WikiClient {
         try {
             return executeRequest((new URIBuilder(WIKI_API_URL).setParameters()
                     .setParameter("action", "query")
-                    .setParameter("format", "xml")
+                    .setParameter("format", "json")
                     .setParameter("prop", "extracts")
                     .setParameter("explaintext", null)
                     .setParameter("exsectionformat", "plain")
