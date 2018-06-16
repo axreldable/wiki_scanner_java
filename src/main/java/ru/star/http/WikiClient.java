@@ -1,23 +1,32 @@
 package ru.star.http;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
-import ru.star.StringUtils;
+import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 public class WikiClient {
+    final static Logger logger = Logger.getLogger(WikiClient.class);
+
     private String WIKI_API_URL = "http://ru.wikipedia.org/w/api.php";
 
     private HttpClient client;
 
     public WikiClient() {
-        client = HttpClients.createDefault();
+        client = HttpClients.custom()
+                .setDefaultRequestConfig(RequestConfig.custom()
+                        .setCookieSpec(CookieSpecs.STANDARD).build())
+                .build();
     }
 
     public String getCategory(String name) {
@@ -31,7 +40,7 @@ public class WikiClient {
                     .setParameter("cmtitle", "Category:" + name)
                     .build()));
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.info("Exception during uri building", e);
         }
         return null;
     }
@@ -47,7 +56,7 @@ public class WikiClient {
                     .setParameter("pageids", id)
                     .build()));
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.info("Exception during uri building", e);
         }
         return null;
     }
@@ -55,9 +64,15 @@ public class WikiClient {
     private String executeRequest(URI uri) {
         try {
             HttpResponse response = client.execute(new HttpGet(uri));
-            return StringUtils.inputStreamToString(response.getEntity().getContent());
+            int status = response.getStatusLine().getStatusCode();
+            if (status >= 200 && status < 300) {
+                HttpEntity entity = response.getEntity();
+                return entity != null ? EntityUtils.toString(entity) : null;
+            } else {
+                logger.info("Bad response from wiki");
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.info("Exception during execute GET request", e);
         }
         return null;
     }
