@@ -12,6 +12,6 @@ public class Main {
             new WikiPrinter().print("", "0" + i, arr[i-1]);
         }
 
-        CsvWorker.printArticles();
+        CsvWorker.printArticles("file.csv");
     }
 }
