@@ -19,7 +19,7 @@ import java.net.URISyntaxException;
  * Class for http communication with Wiki.
  */
 public class WikiClient {
-    final static Logger logger = Logger.getLogger(WikiClient.class);
+    private final static Logger logger = Logger.getLogger(WikiClient.class);
 
     private String WIKI_API_URL = "http://ru.wikipedia.org/w/api.php";
 
