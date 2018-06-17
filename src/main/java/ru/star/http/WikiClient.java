@@ -15,6 +15,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * Class for http communication with Wiki.
+ */
 public class WikiClient {
     final static Logger logger = Logger.getLogger(WikiClient.class);
 
@@ -29,6 +32,11 @@ public class WikiClient {
                 .build();
     }
 
+    /**
+     * GET methods for getting categories from Wiki.
+     * @param name - name of the category
+     * @return Wiki response in String
+     */
     public String getCategory(String name) {
         try {
             return executeRequest((new URIBuilder(WIKI_API_URL)
@@ -45,6 +53,11 @@ public class WikiClient {
         return null;
     }
 
+    /**
+     * GET method for getting the article from Wiki.
+     * @param id - article's id
+     * @return Wiki response in String
+     */
     public String getArticle(String id) {
         try {
             return executeRequest((new URIBuilder(WIKI_API_URL).setParameters()
@@ -61,6 +74,11 @@ public class WikiClient {
         return null;
     }
 
+    /**
+     * Method for execute request from http client. If smth goes wrong return null and log bad response.
+     * @param uri - uri for GET method
+     * @return String response from Server
+     */
     private String executeRequest(URI uri) {
         try {
             HttpResponse response = client.execute(new HttpGet(uri));
