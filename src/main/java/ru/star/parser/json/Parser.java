@@ -8,7 +8,16 @@ import ru.star.model.Category;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Wiki response Json Parser.
+ */
 public class Parser {
+    /**
+     * Parse response for category request.
+     *
+     * @param categories - category response from Wiki
+     * @return List of the {@link Category}s
+     */
     public static List<Category> parseCategories(String categories) {
         String jsonCategories = new JsonParser().parse(categories)
                 .getAsJsonObject().get("query")
@@ -16,6 +25,13 @@ public class Parser {
         return Arrays.asList(new Gson().fromJson(jsonCategories, Category[].class));
     }
 
+    /**
+     * Parse response for article request.
+     *
+     * @param article - article response from Wiki
+     * @param id      - article's id
+     * @return Parsed {@link Article}
+     */
     public static Article parseArticle(String article, String id) {
         String jsonArticle = new JsonParser().parse(article)
                 .getAsJsonObject().get("query")

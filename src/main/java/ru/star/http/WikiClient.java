@@ -34,6 +34,7 @@ public class WikiClient {
 
     /**
      * GET methods for getting categories from Wiki.
+     *
      * @param name - name of the category
      * @return Wiki response in String
      */
@@ -55,6 +56,7 @@ public class WikiClient {
 
     /**
      * GET method for getting the article from Wiki.
+     *
      * @param id - article's id
      * @return Wiki response in String
      */
@@ -76,6 +78,7 @@ public class WikiClient {
 
     /**
      * Method for execute request from http client. If smth goes wrong return null and log bad response.
+     *
      * @param uri - uri for GET method
      * @return String response from Server
      */
