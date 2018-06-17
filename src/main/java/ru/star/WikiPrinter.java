@@ -1,9 +1,11 @@
 package ru.star;
 
 import org.apache.log4j.Logger;
+import ru.star.csv.CsvWorker;
 import ru.star.http.WikiClient;
 import ru.star.model.Article;
 import ru.star.model.Category;
+import ru.star.model.CsvModel;
 import ru.star.parser.json.Parser;
 import ru.star.utils.FileUtils;
 
@@ -73,10 +75,27 @@ public class WikiPrinter {
             Article article = Parser.parseArticle(articleFromWiki, page.getPageId());
             logger.debug(article);
 
-            FileUtils.saveToFile(article.getExtract(), dirName + File.separator + categoryId + "_" + threeDigit("" + i) + "_" + page.getTitle() + ".txt");
+            String fileName = createFileName(dirName, categoryId, i);
+            String extract = article.getExtract();
+            FileUtils.saveToFile(extract, fileName + ".txt");
+
+            String csvFileId = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
+            CsvWorker.addArticle(CsvModel.builder()
+                    .fileId(csvFileId)
+                    .articleName(page.getTitle())
+                    .url("https://ru.wikipedia.org/wiki/" + page.getTitle().replaceAll(" ", "_"))
+                    .category(dirName.substring(0, dirName.indexOf('_')))
+                    .level((int) csvFileId.chars().filter(ch -> ch == '_').count() - 1)
+                    .articleSize(extract.getBytes().length)
+                    .build());
+
             articleCounter++;
             if (articleCounter >= MAX_ARTICLE) return;
         }
+    }
+
+    private String createFileName(String dirName, String categoryId, int i) {
+        return dirName + File.separator + categoryId + "_" + threeDigit("" + i);
     }
 
     private String createDirName(String preventDirs, String categoryId, String category) {
