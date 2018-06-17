@@ -1,5 +1,6 @@
 package ru.star;
 
+import org.apache.log4j.Logger;
 import ru.star.http.WikiClient;
 import ru.star.model.Article;
 import ru.star.model.Category;
@@ -7,12 +8,19 @@ import ru.star.parser.json.Parser;
 import ru.star.utils.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.star.parser.json.Parser.parseCategories;
+import static ru.star.utils.FileUtils.createDir;
+import static ru.star.utils.StringUtils.threeDigit;
 
 public class WikiPrinter {
+    private final static Logger logger = Logger.getLogger(WikiPrinter.class);
+
+    private static final int MAX_ARTICLE = 20;
+
     private WikiClient client;
     private int articleCounter;
 
@@ -21,33 +29,57 @@ public class WikiPrinter {
         articleCounter = 0;
     }
 
-    public void print(String category, int id, String preventDirs) throws IOException {
-        String fileName = preventDirs + (preventDirs.equals("") ? "" : File.separator) + "_" + category;
-        File file = new File(fileName);
-        file.mkdir();
-        System.out.println("Печатаю категорию - " + category + "; articleCounter = " + articleCounter);
+    public void print(String preventDirs, String categoryId, String category) {
+        if (articleCounter >= MAX_ARTICLE) return;
+
+        String dirName = createDirName(preventDirs, categoryId, category);
+        createDir(dirName);
+        logger.info("Печатаю категорию - " + category + "; articleCounter = " + articleCounter);
 
         String categoriesFromWiki = client.getCategory(category);
+        if (categoriesFromWiki == null) return;
 
         List<Category> categories = parseCategories(categoriesFromWiki);
 
-        for (Category cat : categories) {
-            if (articleCounter >= 2) {
-                break;
-            }
-            if (cat.getNs().equals("0") && cat.getType().equals("page")) {
-                String articleFromWiki = client.getArticle(cat.getPageId());
+        List<Category> pages = categories.stream()
+                .filter(cat -> cat.getNs().equals("0") && cat.getType().equals("page"))
+                .sorted(Comparator.comparing(Category::getTitle))
+                .collect(Collectors.toList());
+        printPages(pages, dirName, categoryId);
+        if (articleCounter >= MAX_ARTICLE) return;
 
-                Article article = Parser.parseArticle(articleFromWiki, cat.getPageId());
-//                System.out.println(article);
+        List<Category> subCategories = categories.stream()
+                .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
+                .sorted(Comparator.comparing(Category::getTitle))
+                .collect(Collectors.toList());
+        printSubCategories(subCategories, dirName, categoryId);
+    }
 
-                FileUtils.saveToFile(article.getExtract(), fileName + File.separator + cat.getTitle() + ".txt");
-                articleCounter++;
-                System.out.println("I print article - " + articleCounter);
-            } else if (cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория")) {
-                String nextCat = cat.getTitle().substring("Категория".length()+1);
-                print(nextCat, 1, fileName);
-            }
+    private void printSubCategories(List<Category> subCategories, String dirName, String categoryId) {
+        int i = 0;
+        for (Category cat : subCategories) {
+            i++;
+            String nextCat = cat.getTitle().substring("Категория".length() + 1);
+            print(dirName, categoryId + "_" + threeDigit("" + i), nextCat);
         }
+    }
+
+    private void printPages(List<Category> pages, String dirName, String categoryId) {
+        int i = 0;
+        for (Category page : pages) {
+            i++;
+            String articleFromWiki = client.getArticle(page.getPageId());
+
+            Article article = Parser.parseArticle(articleFromWiki, page.getPageId());
+            logger.debug(article);
+
+            FileUtils.saveToFile(article.getExtract(), dirName + File.separator + categoryId + "_" + threeDigit("" + i) + "_" + page.getTitle() + ".txt");
+            articleCounter++;
+            if (articleCounter >= MAX_ARTICLE) return;
+        }
+    }
+
+    private String createDirName(String preventDirs, String categoryId, String category) {
+        return preventDirs + (preventDirs.equals("") ? "" : File.separator) + categoryId + "_" + category;
     }
 }
