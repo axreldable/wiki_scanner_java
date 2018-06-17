@@ -28,4 +28,13 @@ public class FileUtils {
         logger.debug("Couldn't create dir - " + dirName);
         return false;
     }
+
+    public static String readFromFile(String fileName) {
+        try {
+            return new String(Files.readAllBytes(Paths.get(fileName)));
+        } catch (IOException e) {
+            logger.info("Exception during reading from file - " + fileName, e);
+        }
+        return null;
+    }
 }

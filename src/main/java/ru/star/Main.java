@@ -1,17 +1,30 @@
 package ru.star;
 
+import org.apache.log4j.Logger;
 import ru.star.csv.CsvWorker;
+import ru.star.model.Config;
+import ru.star.parser.json.Parser;
+import ru.star.utils.FileUtils;
 
 import java.util.Arrays;
 
 public class Main {
+    private final static Logger logger = Logger.getLogger(Main.class);
+
     public static void main(String[] args) {
-        String[] arr = new String[]{"Политика", "Искусство", "Автомобили"};
-        Arrays.sort(arr);
-        for (int i = 1; i <= arr.length; i++) {
-            new WikiPrinter().print("", "0" + i, arr[i-1]);
+        String configJson = FileUtils.readFromFile("app_config.json");
+        Config config = Parser.parseConfig(configJson);
+        if (!config.isCorrect()) {
+            logger.info("Config is incorrect");
+            return;
         }
 
-        CsvWorker.printArticles("file.csv");
+        String[] categories = config.getStartCategories();
+        Arrays.sort(categories);
+        for (int i = 1; i <= categories.length; i++) {
+            new WikiPrinter().print(config.getCrawlingResultsPath(), "0" + i, categories[i-1]);
+        }
+
+        CsvWorker.printArticles(config.getResultCsvName());
     }
 }

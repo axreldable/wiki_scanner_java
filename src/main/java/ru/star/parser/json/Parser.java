@@ -2,6 +2,7 @@ package ru.star.parser.json;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
+import ru.star.model.Config;
 import ru.star.model.Article;
 import ru.star.model.Category;
 
@@ -9,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Wiki response Json Parser.
+ * Wiki response Json Config.
  */
 public class Parser {
     /**
@@ -38,5 +39,9 @@ public class Parser {
                 .getAsJsonObject().get("pages")
                 .getAsJsonObject().get(id).toString();
         return new Gson().fromJson(jsonArticle, Article.class);
+    }
+
+    public static Config parseConfig(String jsonConfig) {
+        return new Gson().fromJson(jsonConfig, Config.class);
     }
 }
