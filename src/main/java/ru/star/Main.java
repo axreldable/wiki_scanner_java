@@ -12,6 +12,10 @@ public class Main {
     private final static Logger logger = Logger.getLogger(Main.class);
 
     public static void main(String[] args) {
+        long startTime;
+        long endTime;
+        startTime = System.currentTimeMillis();
+
         String configJson = FileUtils.readFromFile("app_config.json");
         Config config = Parser.parseConfig(configJson);
         if (!config.validateAndFix()) {
@@ -26,5 +30,8 @@ public class Main {
         }
 
         CsvWorker.printArticles(config.getResultCsvName());
+
+        endTime = System.currentTimeMillis();
+        System.out.println("Time taken: " + (endTime - startTime) + " millis");
     }
 }
