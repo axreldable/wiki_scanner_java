@@ -21,18 +21,18 @@ import static ru.star.utils.StringUtils.threeDigit;
 public class WikiPrinter {
     private final static Logger logger = Logger.getLogger(WikiPrinter.class);
 
-    private static final int MAX_ARTICLE = 20;
-
     private WikiClient client;
     private int articleCounter;
+    private int printingCount;
 
-    public WikiPrinter() {
-        client = new WikiClient();
-        articleCounter = 0;
+    public WikiPrinter(int printingCount) {
+        this.client = new WikiClient();
+        this.articleCounter = 0;
+        this.printingCount = printingCount;
     }
 
     public void print(String preventDirs, String categoryId, String category) {
-        if (articleCounter >= MAX_ARTICLE) return;
+        if (articleCounter >= printingCount) return;
 
         String dirName = createDirName(preventDirs, categoryId, category);
         createDir(dirName);
@@ -48,7 +48,7 @@ public class WikiPrinter {
                 .sorted(Comparator.comparing(Category::getTitle))
                 .collect(Collectors.toList());
         printPages(pages, dirName, categoryId);
-        if (articleCounter >= MAX_ARTICLE) return;
+        if (articleCounter >= printingCount) return;
 
         List<Category> subCategories = categories.stream()
                 .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
@@ -90,7 +90,7 @@ public class WikiPrinter {
                     .build());
 
             articleCounter++;
-            if (articleCounter >= MAX_ARTICLE) return;
+            if (articleCounter >= printingCount) return;
         }
     }
 

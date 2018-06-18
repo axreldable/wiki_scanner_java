@@ -21,8 +21,10 @@ public class Config {
     private String crawlingResultsPath;
     @SerializedName("result_csv_name")
     private String resultCsvName;
+    @SerializedName("print_count")
+    private int printingCount;
 
-    public boolean isCorrect() {
+    public boolean validateAndFix() {
         if (!(startCategories.length > 0)) {
             logger.info("At least one starting category is required");
             return false;
@@ -39,6 +41,10 @@ public class Config {
             logger.info("crawlingResultsPath doesn't exist");
             FileUtils.createDir(crawlingResultsPath);
             logger.info(crawlingResultsPath + " created");
+        }
+        if (!(printingCount > 0)) {
+            logger.info("At least one article for printing is required");
+            return false;
         }
         return true;
     }

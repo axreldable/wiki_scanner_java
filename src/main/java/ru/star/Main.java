@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         String configJson = FileUtils.readFromFile("app_config.json");
         Config config = Parser.parseConfig(configJson);
-        if (!config.isCorrect()) {
+        if (!config.validateAndFix()) {
             logger.info("Config is incorrect");
             return;
         }
@@ -22,7 +22,7 @@ public class Main {
         String[] categories = config.getStartCategories();
         Arrays.sort(categories);
         for (int i = 1; i <= categories.length; i++) {
-            new WikiPrinter().print(config.getCrawlingResultsPath(), "0" + i, categories[i-1]);
+            new WikiPrinter(config.getPrintingCount()).print(config.getCrawlingResultsPath(), "0" + i, categories[i-1]);
         }
 
         CsvWorker.printArticles(config.getResultCsvName());
