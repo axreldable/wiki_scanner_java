@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.star.Constants.*;
 import static ru.star.parser.json.Parser.parseCategories;
 import static ru.star.utils.FileUtils.createDir;
 import static ru.star.utils.StringUtils.threeDigit;
@@ -44,14 +45,14 @@ public class WikiPrinter {
         List<Category> categories = parseCategories(categoriesFromWiki);
 
         List<Category> pages = categories.stream()
-                .filter(cat -> cat.getNs().equals("0") && cat.getType().equals("page"))
+                .filter(cat -> cat.getNs().equals(ZERO) && cat.getType().equals(PAGE_LBL))
                 .sorted(Comparator.comparing(Category::getTitle))
                 .collect(Collectors.toList());
         printPages(pages, dirName, categoryId);
         if (articleCounter >= printingCount) return;
 
         List<Category> subCategories = categories.stream()
-                .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
+                .filter(cat -> cat.getType().equals(SUB_CAT_LBL) && cat.getTitle().startsWith(CATEGORY))
                 .sorted(Comparator.comparing(Category::getTitle))
                 .collect(Collectors.toList());
         printSubCategories(subCategories, dirName, categoryId);
@@ -61,7 +62,7 @@ public class WikiPrinter {
         int i = 0;
         for (Category cat : subCategories) {
             i++;
-            String nextCat = cat.getTitle().substring("Категория".length() + 1);
+            String nextCat = cat.getTitle().substring(CATEGORY.length() + 1);
             print(dirName, categoryId + "_" + threeDigit("" + i), nextCat);
         }
     }
@@ -77,13 +78,13 @@ public class WikiPrinter {
 
             String fileName = createFileName(dirName, categoryId, i);
             String extract = article.getExtract();
-            FileUtils.saveToFile(extract, fileName + ".txt");
+            FileUtils.saveToFile(extract, fileName + TXT_EXT);
 
             String csvFileId = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
             CsvWorker.addArticle(CsvModel.builder()
                     .fileId(csvFileId)
                     .articleName(page.getTitle())
-                    .url("https://ru.wikipedia.org/wiki/" + page.getTitle().replaceAll(" ", "_"))
+                    .url(HTTPS_WIKI + page.getTitle().replaceAll(" ", "_"))
                     .category(dirName.substring(0, dirName.indexOf('_')))
                     .level((int) csvFileId.chars().filter(ch -> ch == '_').count() - 1)
                     .articleSize(extract.getBytes().length)

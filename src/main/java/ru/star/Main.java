@@ -8,6 +8,8 @@ import ru.star.utils.FileUtils;
 
 import java.util.Arrays;
 
+import static ru.star.Constants.CONFIG_NAME;
+
 public class Main {
     private final static Logger logger = Logger.getLogger(Main.class);
 
@@ -16,7 +18,7 @@ public class Main {
         long endTime;
         startTime = System.currentTimeMillis();
 
-        String configJson = FileUtils.readFromFile("app_config.json");
+        String configJson = FileUtils.readFromFile(CONFIG_NAME);
         Config config = Parser.parseConfig(configJson);
         if (!config.validateAndFix()) {
             logger.info("Config is incorrect");
