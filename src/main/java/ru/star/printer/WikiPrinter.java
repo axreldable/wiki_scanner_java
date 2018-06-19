@@ -48,6 +48,17 @@ public class WikiPrinter implements Callable<Object> {
 
         List<Category> categories = parseCategories(categoriesFromWiki);
 
+        if (printAllPages(categories, dirName)) return null;
+
+        List<Category> subCategories = categories.stream()
+                .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
+                .sorted(Comparator.comparing(Category::getTitle))
+                .collect(Collectors.toList());
+        printSubCategories(subCategories, dirName);
+        return null;
+    }
+
+    private boolean printAllPages(List<Category> categories, String dirName) throws InterruptedException {
         AtomicInteger i = new AtomicInteger(0);
         List<PageCategory> pages = categories.stream()
                 .filter(cat -> cat.getNs().equals("0") && cat.getType().equals("page"))
@@ -68,14 +79,7 @@ public class WikiPrinter implements Callable<Object> {
         }
 
         model.getExecutorModel().getExecutor().invokeAll(todo); // waits all tasks here
-        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return null;
-
-        List<Category> subCategories = categories.stream()
-                .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
-                .sorted(Comparator.comparing(Category::getTitle))
-                .collect(Collectors.toList());
-        printSubCategories(subCategories, dirName);
-        return null;
+        return model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount();
     }
 
     private void printSubCategories(List<Category> subCategories, String dirName) throws InterruptedException {
