@@ -13,7 +13,7 @@ public class CsvWorker {
 
     private static List<CsvModel> articles = new ArrayList<>();
 
-    public static void addArticle(CsvModel article) {
+    public static synchronized void addArticle(CsvModel article) {
         articles.add(article);
     }
 
