@@ -20,7 +20,7 @@ import static ru.star.parser.json.Parser.parseCategories;
 import static ru.star.utils.FileUtils.createDir;
 import static ru.star.utils.StringUtils.threeDigit;
 
-public class WikiPrinter implements Callable<String> {
+public class WikiPrinter implements Callable<Object> {
     private final static Logger logger = Logger.getLogger(WikiPrinter.class);
 
     private WikiPrinterModel model;
@@ -31,7 +31,7 @@ public class WikiPrinter implements Callable<String> {
 
     @Override
     public String call() throws InterruptedException {
-        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return "done";
+        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return null;
 
         String dirName = createDirName(
                 model.getModel().getPreventDirs(),
@@ -44,7 +44,7 @@ public class WikiPrinter implements Callable<String> {
         );
 
         String categoriesFromWiki = model.getParams().getClient().getCategory(model.getModel().getCategory());
-        if (categoriesFromWiki == null) return "done";
+        if (categoriesFromWiki == null) return null;
 
         List<Category> categories = parseCategories(categoriesFromWiki);
 
@@ -68,14 +68,14 @@ public class WikiPrinter implements Callable<String> {
         }
 
         model.getExecutorModel().getExecutor().invokeAll(todo); // waits all tasks here
-        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return "done";
+        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return null;
 
         List<Category> subCategories = categories.stream()
                 .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
                 .sorted(Comparator.comparing(Category::getTitle))
                 .collect(Collectors.toList());
         printSubCategories(subCategories, dirName);
-        return "done";
+        return null;
     }
 
     private void printSubCategories(List<Category> subCategories, String dirName) throws InterruptedException {

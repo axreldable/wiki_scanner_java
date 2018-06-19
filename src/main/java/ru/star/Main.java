@@ -15,7 +15,9 @@ import ru.star.utils.FileUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
@@ -36,15 +38,12 @@ public class Main {
         String[] categories = config.getStartCategories();
         Arrays.sort(categories);
 
-        ExecutorService executor = Executors.newFixedThreadPool(categories.length);
-        List<Callable<String>> todo = new ArrayList<>(categories.length);
+        ExecutorService categoryExecutor = Executors.newFixedThreadPool(categories.length);
+        List<Callable<Object>> todo = new ArrayList<>(categories.length);
 
-        List<ExecutorService> executorServices = new ArrayList<>(categories.length);
-        for (int i = 1; i <= categories.length; i++) {
-            executorServices.add(Executors.newFixedThreadPool(config.getCrawlingThreadsCount()));
-        }
+        List<ExecutorService> executorsForPages = initExecutors(categories.length, config.getCrawlingThreadsCount());
 
-        for (int i = 1; i <= categories.length; i++) {
+        for (int i = 0; i < categories.length; i++) {
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
                     .params(WikiPrinterParams.builder()
                             .client(new WikiClient())
@@ -52,28 +51,34 @@ public class Main {
                             .printingCount(config.getPrintingCount())
                             .build())
                     .model(PrintModel.builder()
-                            .category(categories[i-1])
-                            .categoryId("0"+i)
+                            .category(categories[i])
+                            .categoryId("0" + i + 1)
                             .preventDirs(config.getCrawlingResultsPath())
                             .build())
                     .executorModel(ExecutorModel.builder()
-                            .executor(executorServices.get(i-1))
+                            .executor(executorsForPages.get(i))
                             .threadsCount(config.getCrawlingThreadsCount())
                             .build())
                     .build());
             todo.add(printer);
         }
 
-        executor.invokeAll(todo); // waits all tasks here
-        executor.shutdown();
+        categoryExecutor.invokeAll(todo); // waits all tasks here
+        categoryExecutor.shutdown();
 
-        for (int i = 1; i <= categories.length; i++) {
-            executorServices.get(i-1).shutdown();
-        }
+        executorsForPages.forEach(ExecutorService::shutdown);
 
         endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 92010 millis
 
         CsvWorker.printArticles(config.getResultCsvName());
+    }
+
+    private static List<ExecutorService> initExecutors(int length, int threadsCount) {
+        List<ExecutorService> rez = new ArrayList<>(length);
+        for (int i = 1; i <= length; i++) {
+            rez.add(Executors.newFixedThreadPool(threadsCount));
+        }
+        return rez;
     }
 }
