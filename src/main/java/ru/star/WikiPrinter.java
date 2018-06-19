@@ -14,14 +14,14 @@ import ru.star.utils.FileUtils;
 import java.io.File;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import static ru.star.parser.json.Parser.parseCategories;
 import static ru.star.utils.FileUtils.createDir;
 import static ru.star.utils.StringUtils.threeDigit;
 
-public class WikiPrinter extends RecursiveAction {
+public class WikiPrinter implements Callable<String> {
     private final static Logger logger = Logger.getLogger(WikiPrinter.class);
 
     private WikiPrinterModel model;
@@ -31,8 +31,8 @@ public class WikiPrinter extends RecursiveAction {
     }
 
     @Override
-    protected void compute() {
-        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return;
+    public String call() {
+        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return "done";
 
         String dirName = createDirName(
                 model.getModel().getPreventDirs(),
@@ -45,7 +45,7 @@ public class WikiPrinter extends RecursiveAction {
         );
 
         String categoriesFromWiki = model.getParams().getClient().getCategory(model.getModel().getCategory());
-        if (categoriesFromWiki == null) return;
+        if (categoriesFromWiki == null) return "done";
 
         List<Category> categories = parseCategories(categoriesFromWiki);
 
@@ -54,16 +54,17 @@ public class WikiPrinter extends RecursiveAction {
                 .sorted(Comparator.comparing(Category::getTitle))
                 .collect(Collectors.toList());
         printPages(pages, dirName, model.getModel().getCategoryId());
-        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return;
+        if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return "done";
 
         List<Category> subCategories = categories.stream()
                 .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
                 .sorted(Comparator.comparing(Category::getTitle))
                 .collect(Collectors.toList());
-        printSubCategories(subCategories, dirName, model.getModel().getCategoryId());
+        printSubCategories(subCategories, dirName);
+        return "done";
     }
 
-    private void printSubCategories(List<Category> subCategories, String dirName, String categoryId) {
+    private void printSubCategories(List<Category> subCategories, String dirName) {
         int i = 0;
         for (Category cat : subCategories) {
             i++;
@@ -81,7 +82,7 @@ public class WikiPrinter extends RecursiveAction {
                             .preventDirs(dirName)
                             .build())
                     .build());
-            printer.compute();
+            printer.call();
         }
     }
 
