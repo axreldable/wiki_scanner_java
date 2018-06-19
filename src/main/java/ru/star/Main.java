@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import ru.star.csv.CsvWorker;
 import ru.star.http.WikiClient;
 import ru.star.model.Config;
+import ru.star.model.printer.ExecutorModel;
 import ru.star.model.printer.PrintModel;
 import ru.star.model.printer.WikiPrinterModel;
 import ru.star.model.printer.WikiPrinterParams;
@@ -38,6 +39,11 @@ public class Main {
         ExecutorService executor = Executors.newFixedThreadPool(categories.length);
         List<Callable<String>> todo = new ArrayList<>(categories.length);
 
+        List<ExecutorService> executorServices = new ArrayList<>(categories.length);
+        for (int i = 1; i <= categories.length; i++) {
+            executorServices.add(Executors.newFixedThreadPool(config.getCrawlingThreadsCount()));
+        }
+
         for (int i = 1; i <= categories.length; i++) {
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
                     .params(WikiPrinterParams.builder()
@@ -50,6 +56,10 @@ public class Main {
                             .categoryId("0"+i)
                             .preventDirs(config.getCrawlingResultsPath())
                             .build())
+                    .executorModel(ExecutorModel.builder()
+                            .executor(executorServices.get(i-1))
+                            .threadsCount(config.getCrawlingThreadsCount())
+                            .build())
                     .build());
             todo.add(printer);
         }
@@ -57,8 +67,12 @@ public class Main {
         executor.invokeAll(todo); // waits all tasks here
         executor.shutdown();
 
+        for (int i = 1; i <= categories.length; i++) {
+            executorServices.get(i-1).shutdown();
+        }
+
         endTime = System.currentTimeMillis();
-        System.out.println("Time taken: " + (endTime - startTime) + " millis");
+        System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 92010 millis
 
         CsvWorker.printArticles(config.getResultCsvName());
     }

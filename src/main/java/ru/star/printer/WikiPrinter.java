@@ -9,6 +9,7 @@ import ru.star.model.printer.WikiPrinterModel;
 import ru.star.model.printer.WikiPrinterParams;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -29,7 +30,7 @@ public class WikiPrinter implements Callable<String> {
     }
 
     @Override
-    public String call() {
+    public String call() throws InterruptedException {
         if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return "done";
 
         String dirName = createDirName(
@@ -53,12 +54,20 @@ public class WikiPrinter implements Callable<String> {
                 .sorted(Comparator.comparing(Category::getTitle))
                 .map(x -> new PageCategory(x, i.incrementAndGet()))
                 .collect(Collectors.toList());
-        new PagesPrinter(PagesPrinterModel.builder()
-                .wikiPrinterParams(model.getParams())
-                .pages(pages)
-                .dirName(dirName)
-                .categoryId(model.getModel().getCategoryId())
-                .build()).compute();
+
+        List<List<PageCategory>> partsOfPages = split(pages, model.getExecutorModel().getThreadsCount());
+        List<Callable<Object>> todo = new ArrayList<>(model.getExecutorModel().getThreadsCount());
+
+        for (List<PageCategory> pagesList : partsOfPages) {
+            todo.add(new PagesPrinter(PagesPrinterModel.builder()
+                    .wikiPrinterParams(model.getParams())
+                    .pages(pagesList)
+                    .dirName(dirName)
+                    .categoryId(model.getModel().getCategoryId())
+                    .build()));
+        }
+
+        model.getExecutorModel().getExecutor().invokeAll(todo); // waits all tasks here
         if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return "done";
 
         List<Category> subCategories = categories.stream()
@@ -69,7 +78,7 @@ public class WikiPrinter implements Callable<String> {
         return "done";
     }
 
-    private void printSubCategories(List<Category> subCategories, String dirName) {
+    private void printSubCategories(List<Category> subCategories, String dirName) throws InterruptedException {
         int i = 0;
         for (Category cat : subCategories) {
             i++;
@@ -86,6 +95,7 @@ public class WikiPrinter implements Callable<String> {
                             .categoryId(model.getModel().getCategoryId() + "_" + threeDigit("" + i))
                             .preventDirs(dirName)
                             .build())
+                    .executorModel(model.getExecutorModel())
                     .build());
             printer.call();
         }
@@ -93,5 +103,13 @@ public class WikiPrinter implements Callable<String> {
 
     private String createDirName(String preventDirs, String categoryId, String category) {
         return preventDirs + (preventDirs.equals("") ? "" : File.separator) + categoryId + "_" + category;
+    }
+
+    private List<List<PageCategory>> split(List<PageCategory> ar, int partitionSize) {
+        List<List<PageCategory>> rez = new ArrayList<>();
+        for (int i = 0; i < ar.size(); i += partitionSize) {
+            rez.add(ar.subList(i, Math.min(i + partitionSize, ar.size())));
+        }
+        return rez;
     }
 }

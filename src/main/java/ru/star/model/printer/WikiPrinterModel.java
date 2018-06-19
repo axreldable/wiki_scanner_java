@@ -8,4 +8,5 @@ import lombok.Getter;
 public class WikiPrinterModel {
     private WikiPrinterParams params;
     private PrintModel model;
+    private ExecutorModel executorModel;
 }

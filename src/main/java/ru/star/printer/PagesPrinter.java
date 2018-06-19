@@ -10,11 +10,11 @@ import ru.star.parser.json.Parser;
 import ru.star.utils.FileUtils;
 
 import java.io.File;
-import java.util.concurrent.RecursiveAction;
+import java.util.concurrent.Callable;
 
 import static ru.star.utils.StringUtils.threeDigit;
 
-public class PagesPrinter extends RecursiveAction {
+public class PagesPrinter implements Callable<Object> {
     private final static Logger logger = Logger.getLogger(PagesPrinter.class);
 
     private PagesPrinterModel model;
@@ -24,7 +24,7 @@ public class PagesPrinter extends RecursiveAction {
     }
 
     @Override
-    protected void compute() {
+    public String call() {
         for (PageCategory page : model.getPages()) {
             String articleFromWiki = model.getWikiPrinterParams().getClient().getArticle(page.getCategory().getPageId());
 
@@ -46,8 +46,10 @@ public class PagesPrinter extends RecursiveAction {
                     .build());
 
             model.getWikiPrinterParams().getArticleCounter().incrementAndGet();
-            if (model.getWikiPrinterParams().getArticleCounter().get() >= model.getWikiPrinterParams().getPrintingCount()) return;
+            logger.debug(Thread.currentThread().getName() + " - " + model.getWikiPrinterParams().getArticleCounter().get());
+            if (model.getWikiPrinterParams().getArticleCounter().get() >= model.getWikiPrinterParams().getPrintingCount()) return null;
         }
+        return null;
     }
 
     private String createFileName(String dirName, String categoryId, int i) {
