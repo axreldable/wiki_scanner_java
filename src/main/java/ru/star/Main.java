@@ -8,6 +8,7 @@ import ru.star.model.printer.PrintModel;
 import ru.star.model.printer.WikiPrinterModel;
 import ru.star.model.printer.WikiPrinterParams;
 import ru.star.parser.json.Parser;
+import ru.star.printer.WikiPrinter;
 import ru.star.utils.FileUtils;
 
 import java.util.ArrayList;

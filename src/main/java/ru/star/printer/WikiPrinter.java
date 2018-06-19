@@ -1,10 +1,11 @@
-package ru.star;
+package ru.star.printer;
 
 import org.apache.log4j.Logger;
 import ru.star.csv.CsvWorker;
 import ru.star.model.Article;
 import ru.star.model.Category;
 import ru.star.model.CsvModel;
+import ru.star.model.PageCategory;
 import ru.star.model.printer.PrintModel;
 import ru.star.model.printer.WikiPrinterModel;
 import ru.star.model.printer.WikiPrinterParams;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static ru.star.parser.json.Parser.parseCategories;
@@ -49,9 +51,11 @@ public class WikiPrinter implements Callable<String> {
 
         List<Category> categories = parseCategories(categoriesFromWiki);
 
-        List<Category> pages = categories.stream()
+        AtomicInteger i = new AtomicInteger(0);
+        List<PageCategory> pages = categories.stream()
                 .filter(cat -> cat.getNs().equals("0") && cat.getType().equals("page"))
                 .sorted(Comparator.comparing(Category::getTitle))
+                .map(x -> new PageCategory(x, i.incrementAndGet()))
                 .collect(Collectors.toList());
         printPages(pages, dirName, model.getModel().getCategoryId());
         if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return "done";
@@ -86,30 +90,28 @@ public class WikiPrinter implements Callable<String> {
         }
     }
 
-    private void printPages(List<Category> pages, String dirName, String categoryId) {
-        int i = 0;
-        for (Category page : pages) {
-            i++;
-            String articleFromWiki = model.getParams().getClient().getArticle(page.getPageId());
+    private void printPages(List<PageCategory> pages, String dirName, String categoryId) {
+        for (PageCategory page : pages) {
+            String articleFromWiki = model.getParams().getClient().getArticle(page.getCategory().getPageId());
 
-            Article article = Parser.parseArticle(articleFromWiki, page.getPageId());
+            Article article = Parser.parseArticle(articleFromWiki, page.getCategory().getPageId());
             logger.debug(article);
 
-            String fileName = createFileName(dirName, categoryId, i);
+            String fileName = createFileName(dirName, categoryId, page.getPageNumber());
             String extract = article.getExtract();
             FileUtils.saveToFile(extract, fileName + ".txt");
 
             String csvFileId = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
             CsvWorker.addArticle(CsvModel.builder()
                     .fileId(csvFileId)
-                    .articleName(page.getTitle())
-                    .url("https://ru.wikipedia.org/wiki/" + page.getTitle().replaceAll(" ", "_"))
+                    .articleName(page.getCategory().getTitle())
+                    .url("https://ru.wikipedia.org/wiki/" + page.getCategory().getTitle().replaceAll(" ", "_"))
                     .category(dirName.substring(0, dirName.indexOf('_')))
                     .level((int) csvFileId.chars().filter(ch -> ch == '_').count() - 1)
                     .articleSize(extract.getBytes().length)
                     .build());
 
-            model.getParams().getArticleCounter().addAndGet(1);
+            model.getParams().getArticleCounter().incrementAndGet();
             if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return;
         }
     }
