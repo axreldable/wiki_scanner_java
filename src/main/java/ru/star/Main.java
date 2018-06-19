@@ -69,7 +69,7 @@ public class Main {
         executorsForPages.forEach(ExecutorService::shutdown);
 
         endTime = System.currentTimeMillis();
-        System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 92010 millis
+        System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 72115 millis
 
         CsvWorker.printArticles(config.getResultCsvName());
     }
