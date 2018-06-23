@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class PageCategory {
-    Category category;
-    int pageNumber;
+    private Category category;
+    private int pageNumber;
 
     public PageCategory(Category category, int pageNumber) {
         this.category = category;
