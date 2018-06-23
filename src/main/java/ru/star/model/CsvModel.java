@@ -9,12 +9,12 @@ import java.util.stream.Stream;
 @Builder
 @ToString
 public class CsvModel {
-    String fileId;
-    String articleName;
-    String url;
-    String category;
-    int level;
-    int articleSize;
+    private String fileId;
+    private String articleName;
+    private String url;
+    private String category;
+    private int level;
+    private int articleSize;
 
     public String toCsvRow() {
         return Stream.of(fileId, articleName, url, category, String.valueOf(level), String.valueOf(articleSize))
