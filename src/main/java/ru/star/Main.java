@@ -1,16 +1,15 @@
 package ru.star;
 
 import org.apache.log4j.Logger;
+import ru.star.config.ConfigWorker;
+import ru.star.config.exception.WrongConfigException;
 import ru.star.csv.CsvConsumer;
 import ru.star.http.WikiClient;
-import ru.star.model.Config;
 import ru.star.model.printer.ExecutorModel;
 import ru.star.model.printer.PrintModel;
 import ru.star.model.printer.WikiPrinterModel;
 import ru.star.model.printer.WikiPrinterParams;
-import ru.star.parser.json.Parser;
 import ru.star.printer.WikiPrinter;
-import ru.star.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,47 +22,40 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Main {
     private final static Logger logger = Logger.getLogger(Main.class);
 
-    public static void main(String[] args) throws InterruptedException {
-        long startTime;
-        long endTime;
-        startTime = System.currentTimeMillis();
+    public static void main(String[] args) throws InterruptedException, WrongConfigException {
+        long startTime = System.currentTimeMillis();
 
-        String configJson = FileUtils.readFromFile("app_config.json");
-        Config config = Parser.parseConfig(configJson);
-        if (!config.validateAndFix()) {
-            logger.info("Config is incorrect");
-            return;
-        }
+        ConfigWorker configWorker = initConfig();
 
-        String[] categories = config.getStartCategories();
+        String[] categories = configWorker.getConfig().getStartCategories();
         Arrays.sort(categories);
 
         ExecutorService categoryExecutor = Executors.newFixedThreadPool(categories.length);
         List<Callable<Object>> todo = new ArrayList<>(categories.length);
 
-        List<ExecutorService> executorsForPages = initExecutors(categories.length, config.getCrawlingThreadsCount());
+        List<ExecutorService> executorsForPages = initExecutors(categories.length, configWorker.getConfig().getCrawlingThreadsCount());
 
         for (int i = 1; i <= categories.length; i++) {
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
                     .params(WikiPrinterParams.builder()
                             .client(new WikiClient())
                             .articleCounter(new AtomicInteger(0))
-                            .printingCount(config.getPrintingCount())
+                            .printingCount(configWorker.getConfig().getPrintingCount())
                             .build())
                     .model(PrintModel.builder()
                             .category(categories[i - 1])
                             .categoryId("0" + i)
-                            .preventDirs(config.getCrawlingResultsPath())
+                            .preventDirs(configWorker.getConfig().getCrawlingResultsPath())
                             .build())
                     .executorModel(ExecutorModel.builder()
                             .executor(executorsForPages.get(i - 1))
-                            .threadsCount(config.getCrawlingThreadsCount())
+                            .threadsCount(configWorker.getConfig().getCrawlingThreadsCount())
                             .build())
                     .build());
             todo.add(printer);
         }
 
-        Thread thread = new Thread(new CsvConsumer(config.getResultCsvName()));
+        Thread thread = new Thread(new CsvConsumer(configWorker.getConfig().getResultCsvName()));
         thread.start();
 
         categoryExecutor.invokeAll(todo); // waits all tasks here
@@ -73,8 +65,15 @@ public class Main {
 
         executorsForPages.forEach(ExecutorService::shutdown);
 
-        endTime = System.currentTimeMillis();
+        long endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 72115 millis
+    }
+
+    private static ConfigWorker initConfig() throws WrongConfigException {
+        ConfigWorker configWorker = new ConfigWorker("app_config.json");
+        configWorker.createCrawlingResultPath();
+        configWorker.createResultFilePath();
+        return configWorker;
     }
 
     private static List<ExecutorService> initExecutors(int length, int threadsCount) {

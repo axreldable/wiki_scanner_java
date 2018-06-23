@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static ru.star.parser.json.Parser.parseCategories;
+import static ru.star.parser.json.JsonParser.parseCategories;
 import static ru.star.utils.FileUtils.createDir;
 import static ru.star.utils.StringUtils.threeDigit;
 

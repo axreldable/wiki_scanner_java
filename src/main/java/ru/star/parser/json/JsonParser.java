@@ -1,8 +1,6 @@
 package ru.star.parser.json;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonParser;
-import ru.star.model.Config;
 import ru.star.model.Article;
 import ru.star.model.Category;
 
@@ -10,9 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Wiki response Json Config.
+ * Wiki response Json ConfigModel.
  */
-public class Parser {
+public class JsonParser {
     /**
      * Parse response for category request.
      *
@@ -20,7 +18,7 @@ public class Parser {
      * @return List of the {@link Category}s
      */
     public static List<Category> parseCategories(String categories) {
-        String jsonCategories = new JsonParser().parse(categories)
+        String jsonCategories = new com.google.gson.JsonParser().parse(categories)
                 .getAsJsonObject().get("query")
                 .getAsJsonObject().get("categorymembers").toString();
         return Arrays.asList(new Gson().fromJson(jsonCategories, Category[].class));
@@ -34,14 +32,14 @@ public class Parser {
      * @return Parsed {@link Article}
      */
     public static Article parseArticle(String article, String id) {
-        String jsonArticle = new JsonParser().parse(article)
+        String jsonArticle = new com.google.gson.JsonParser().parse(article)
                 .getAsJsonObject().get("query")
                 .getAsJsonObject().get("pages")
                 .getAsJsonObject().get(id).toString();
         return new Gson().fromJson(jsonArticle, Article.class);
     }
 
-    public static Config parseConfig(String jsonConfig) {
-        return new Gson().fromJson(jsonConfig, Config.class);
+    public static <T> T parse(String jsonString, Class<T> clazz) {
+        return new Gson().fromJson(jsonString, clazz);
     }
 }

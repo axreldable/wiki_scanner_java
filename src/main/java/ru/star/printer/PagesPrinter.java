@@ -6,7 +6,7 @@ import ru.star.model.Article;
 import ru.star.model.CsvModel;
 import ru.star.model.PageCategory;
 import ru.star.model.PagesPrinterModel;
-import ru.star.parser.json.Parser;
+import ru.star.parser.json.JsonParser;
 import ru.star.utils.FileUtils;
 
 import java.io.File;
@@ -28,7 +28,7 @@ class PagesPrinter implements Callable<Object>, CsvProducer {
         for (PageCategory page : model.getPages()) {
             String articleFromWiki = model.getWikiPrinterParams().getClient().getArticle(page.getCategory().getPageId());
 
-            Article article = Parser.parseArticle(articleFromWiki, page.getCategory().getPageId());
+            Article article = JsonParser.parseArticle(articleFromWiki, page.getCategory().getPageId());
             logger.debug(article);
 
             String fileName = createFileName(model.getDirName(), model.getCategoryId(), page.getPageNumber());
