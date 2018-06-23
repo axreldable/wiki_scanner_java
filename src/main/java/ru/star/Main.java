@@ -1,7 +1,7 @@
 package ru.star;
 
 import org.apache.log4j.Logger;
-import ru.star.csv.CsvWorker;
+import ru.star.csv.CsvConsumer;
 import ru.star.http.WikiClient;
 import ru.star.model.Config;
 import ru.star.model.printer.ExecutorModel;
@@ -63,15 +63,18 @@ public class Main {
             todo.add(printer);
         }
 
+        Thread thread = new Thread(new CsvConsumer(config.getResultCsvName()));
+        thread.start();
+
         categoryExecutor.invokeAll(todo); // waits all tasks here
         categoryExecutor.shutdown();
+
+        thread.interrupt();
 
         executorsForPages.forEach(ExecutorService::shutdown);
 
         endTime = System.currentTimeMillis();
         System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 72115 millis
-
-        CsvWorker.printArticles(config.getResultCsvName());
     }
 
     private static List<ExecutorService> initExecutors(int length, int threadsCount) {

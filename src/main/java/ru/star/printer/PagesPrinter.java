@@ -1,7 +1,7 @@
 package ru.star.printer;
 
 import org.apache.log4j.Logger;
-import ru.star.csv.CsvWorker;
+import ru.star.csv.CsvProducer;
 import ru.star.model.Article;
 import ru.star.model.CsvModel;
 import ru.star.model.PageCategory;
@@ -14,12 +14,12 @@ import java.util.concurrent.Callable;
 
 import static ru.star.utils.StringUtils.threeDigit;
 
-public class PagesPrinter implements Callable<Object> {
+class PagesPrinter implements Callable<Object>, CsvProducer {
     private final static Logger logger = Logger.getLogger(PagesPrinter.class);
 
     private PagesPrinterModel model;
 
-    public PagesPrinter(PagesPrinterModel model) {
+    PagesPrinter(PagesPrinterModel model) {
         this.model = model;
     }
 
@@ -36,7 +36,7 @@ public class PagesPrinter implements Callable<Object> {
             FileUtils.saveToFile(extract, fileName + ".txt");
 
             String csvFileId = fileName.substring(fileName.lastIndexOf(File.separator) + 1);
-            CsvWorker.addArticle(CsvModel.builder()
+            addCsv(CsvModel.builder()
                     .fileId(csvFileId)
                     .articleName(page.getCategory().getTitle())
                     .url("https://ru.wikipedia.org/wiki/" + page.getCategory().getTitle().replaceAll(" ", "_"))
