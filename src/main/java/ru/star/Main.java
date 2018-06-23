@@ -43,7 +43,7 @@ public class Main {
 
         List<ExecutorService> executorsForPages = initExecutors(categories.length, config.getCrawlingThreadsCount());
 
-        for (int i = 0; i < categories.length; i++) {
+        for (int i = 1; i <= categories.length; i++) {
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
                     .params(WikiPrinterParams.builder()
                             .client(new WikiClient())
@@ -51,12 +51,12 @@ public class Main {
                             .printingCount(config.getPrintingCount())
                             .build())
                     .model(PrintModel.builder()
-                            .category(categories[i])
-                            .categoryId("0" + i + 1)
+                            .category(categories[i - 1])
+                            .categoryId("0" + i)
                             .preventDirs(config.getCrawlingResultsPath())
                             .build())
                     .executorModel(ExecutorModel.builder()
-                            .executor(executorsForPages.get(i))
+                            .executor(executorsForPages.get(i - 1))
                             .threadsCount(config.getCrawlingThreadsCount())
                             .build())
                     .build());

@@ -4,5 +4,5 @@
   "query_delay": 0,
   "crawling_results_path": "/home/axreldable/IdeaProjects/wiki_scanner_java/crawling",
   "result_csv_name": "/home/axreldable/IdeaProjects/wiki_scanner_java/crawling/result.csv",
-  "print_count": 400
+  "print_count": 20
 }
