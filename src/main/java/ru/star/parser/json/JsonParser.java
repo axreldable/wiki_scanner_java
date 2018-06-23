@@ -1,8 +1,8 @@
 package ru.star.parser.json;
 
 import com.google.gson.Gson;
-import ru.star.model.Article;
-import ru.star.model.Category;
+import ru.star.printer.model.Article;
+import ru.star.printer.model.Category;
 
 import java.util.Arrays;
 import java.util.List;

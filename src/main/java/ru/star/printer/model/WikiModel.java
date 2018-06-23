@@ -1,4 +1,4 @@
-package ru.star.model;
+package ru.star.printer.model;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;

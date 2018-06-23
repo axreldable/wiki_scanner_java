@@ -1,4 +1,4 @@
-package ru.star.model;
+package ru.star.printer.model;
 
 import lombok.Builder;
 import lombok.ToString;

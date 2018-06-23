@@ -5,10 +5,10 @@ import ru.star.config.ConfigWorker;
 import ru.star.config.exception.WrongConfigException;
 import ru.star.csv.CsvConsumer;
 import ru.star.http.WikiClient;
-import ru.star.model.printer.ExecutorModel;
-import ru.star.model.printer.PrintModel;
-import ru.star.model.printer.WikiPrinterModel;
-import ru.star.model.printer.WikiPrinterParams;
+import ru.star.printer.model.ExecutorModel;
+import ru.star.printer.model.PrintModel;
+import ru.star.printer.model.WikiPrinterModel;
+import ru.star.printer.model.WikiPrinterParams;
 import ru.star.printer.WikiPrinter;
 
 import java.util.ArrayList;

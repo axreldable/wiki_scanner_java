@@ -1,6 +1,6 @@
 package ru.star.csv;
 
-import ru.star.model.CsvModel;
+import ru.star.printer.model.CsvModel;
 
 public interface CsvProducer {
     default void addCsv(CsvModel model) {

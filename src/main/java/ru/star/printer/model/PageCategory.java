@@ -1,4 +1,4 @@
-package ru.star.model;
+package ru.star.printer.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

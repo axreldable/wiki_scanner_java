@@ -2,10 +2,10 @@ package ru.star.printer;
 
 import org.apache.log4j.Logger;
 import ru.star.csv.CsvProducer;
-import ru.star.model.Article;
-import ru.star.model.CsvModel;
-import ru.star.model.PageCategory;
-import ru.star.model.PagesPrinterModel;
+import ru.star.printer.model.Article;
+import ru.star.printer.model.CsvModel;
+import ru.star.printer.model.PageCategory;
+import ru.star.printer.model.PagesPrinterModel;
 import ru.star.parser.json.JsonParser;
 import ru.star.utils.FileUtils;
 

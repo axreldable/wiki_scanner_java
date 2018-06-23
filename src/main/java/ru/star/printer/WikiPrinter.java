@@ -1,12 +1,12 @@
 package ru.star.printer;
 
 import org.apache.log4j.Logger;
-import ru.star.model.Category;
-import ru.star.model.PageCategory;
-import ru.star.model.PagesPrinterModel;
-import ru.star.model.printer.PrintModel;
-import ru.star.model.printer.WikiPrinterModel;
-import ru.star.model.printer.WikiPrinterParams;
+import ru.star.printer.model.Category;
+import ru.star.printer.model.PageCategory;
+import ru.star.printer.model.PagesPrinterModel;
+import ru.star.printer.model.PrintModel;
+import ru.star.printer.model.WikiPrinterModel;
+import ru.star.printer.model.WikiPrinterParams;
 
 import java.io.File;
 import java.util.ArrayList;

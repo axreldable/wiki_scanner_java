@@ -1,8 +1,7 @@
-package ru.star.model;
+package ru.star.printer.model;
 
 import lombok.Builder;
 import lombok.Getter;
-import ru.star.model.printer.WikiPrinterParams;
 
 import java.util.List;
 
