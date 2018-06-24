@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Builder
 @Getter
-public class WikiPrinterParams {
+public class WikiPrinterParamsModel {
     private WikiClient client;
     private AtomicInteger articleCounter;
     private int printingCount;

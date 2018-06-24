@@ -1,12 +1,8 @@
 package ru.star.printer;
 
 import org.apache.log4j.Logger;
-import ru.star.printer.model.Category;
-import ru.star.printer.model.PageCategory;
-import ru.star.printer.model.PagesPrinterModel;
-import ru.star.printer.model.PrintModel;
-import ru.star.printer.model.WikiPrinterModel;
-import ru.star.printer.model.WikiPrinterParams;
+import ru.star.printer.model.*;
+import ru.star.printer.model.CategoryModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,72 +30,72 @@ public class WikiPrinter implements Callable<Object> {
         if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return null;
 
         String dirName = createDirName(
-                model.getModel().getPreventDirs(),
-                model.getModel().getCategoryId(),
-                model.getModel().getCategory());
+                model.getDirName().getPreventDirs(),
+                model.getDirName().getCategoryId(),
+                model.getDirName().getCategory());
         createDir(dirName);
         logger.info(
-                "Печатаю категорию - " + model.getModel().getCategory() + ";" +
+                "Печатаю категорию - " + model.getDirName().getCategory() + ";" +
                         " articleCounter = " + model.getParams().getArticleCounter()
         );
 
-        String categoriesFromWiki = model.getParams().getClient().getCategory(model.getModel().getCategory());
+        String categoriesFromWiki = model.getParams().getClient().getCategory(model.getDirName().getCategory());
         if (categoriesFromWiki == null) return null;
 
-        List<Category> categories = parseCategories(categoriesFromWiki);
+        List<CategoryModel> categories = parseCategories(categoriesFromWiki);
 
         if (printAllPages(categories, dirName)) return null;
 
-        List<Category> subCategories = categories.stream()
+        List<CategoryModel> subCategories = categories.stream()
                 .filter(cat -> cat.getType().equals("subcat") && cat.getTitle().startsWith("Категория"))
-                .sorted(Comparator.comparing(Category::getTitle))
+                .sorted(Comparator.comparing(CategoryModel::getTitle))
                 .collect(Collectors.toList());
         printSubCategories(subCategories, dirName);
         return null;
     }
 
-    private boolean printAllPages(List<Category> categories, String dirName) throws InterruptedException {
+    private boolean printAllPages(List<CategoryModel> categories, String dirName) throws InterruptedException {
         AtomicInteger i = new AtomicInteger(0);
-        List<PageCategory> pages = categories.stream()
+        List<PageCategoryModel> pages = categories.stream()
                 .filter(cat -> cat.getNs().equals("0") && cat.getType().equals("page"))
-                .sorted(Comparator.comparing(Category::getTitle))
-                .map(x -> new PageCategory(x, i.incrementAndGet()))
+                .sorted(Comparator.comparing(CategoryModel::getTitle))
+                .map(x -> new PageCategoryModel(x, i.incrementAndGet()))
                 .collect(Collectors.toList());
 
-        List<List<PageCategory>> partsOfPages = split(pages, model.getExecutorModel().getThreadsCount());
-        List<Callable<Object>> todo = new ArrayList<>(model.getExecutorModel().getThreadsCount());
+        List<List<PageCategoryModel>> partsOfPages = split(pages, model.getExecutor().getThreadsCount());
+        List<Callable<Object>> todo = new ArrayList<>(model.getExecutor().getThreadsCount());
 
-        for (List<PageCategory> pagesList : partsOfPages) {
+        for (List<PageCategoryModel> pagesList : partsOfPages) {
             todo.add(new PagesPrinter(PagesPrinterModel.builder()
                     .wikiPrinterParams(model.getParams())
                     .pages(pagesList)
                     .dirName(dirName)
-                    .categoryId(model.getModel().getCategoryId())
+                    .categoryId(model.getDirName().getCategoryId())
                     .build()));
         }
 
-        model.getExecutorModel().getExecutor().invokeAll(todo); // waits all tasks here
+        model.getExecutor().getExecutor().invokeAll(todo); // waits all tasks here
         return model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount();
     }
 
-    private void printSubCategories(List<Category> subCategories, String dirName) throws InterruptedException {
+    private void printSubCategories(List<CategoryModel> subCategories, String dirName) throws InterruptedException {
         int i = 0;
-        for (Category cat : subCategories) {
+        for (CategoryModel cat : subCategories) {
             i++;
             String nextCat = cat.getTitle().substring("Категория".length() + 1);
 
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
-                    .params(WikiPrinterParams.builder()
+                    .params(WikiPrinterParamsModel.builder()
                             .client(model.getParams().getClient())
                             .articleCounter(model.getParams().getArticleCounter())
                             .printingCount(model.getParams().getPrintingCount())
                             .build())
-                    .model(PrintModel.builder()
+                    .dirName(DirNameModel.builder()
                             .category(nextCat)
-                            .categoryId(model.getModel().getCategoryId() + "_" + threeDigit("" + i))
+                            .categoryId(model.getDirName().getCategoryId() + "_" + threeDigit("" + i))
                             .preventDirs(dirName)
                             .build())
-                    .executorModel(model.getExecutorModel())
+                    .executor(model.getExecutor())
                     .build());
             printer.call();
         }
@@ -109,8 +105,8 @@ public class WikiPrinter implements Callable<Object> {
         return preventDirs + (preventDirs.equals("") ? "" : File.separator) + categoryId + "_" + category;
     }
 
-    private List<List<PageCategory>> split(List<PageCategory> ar, int partitionSize) {
-        List<List<PageCategory>> rez = new ArrayList<>();
+    private List<List<PageCategoryModel>> split(List<PageCategoryModel> ar, int partitionSize) {
+        List<List<PageCategoryModel>> rez = new ArrayList<>();
         for (int i = 0; i < ar.size(); i += partitionSize) {
             rez.add(ar.subList(i, Math.min(i + partitionSize, ar.size())));
         }

@@ -2,9 +2,9 @@ package ru.star.printer;
 
 import org.apache.log4j.Logger;
 import ru.star.csv.CsvProducer;
-import ru.star.printer.model.Article;
+import ru.star.printer.model.ArticleModel;
 import ru.star.printer.model.CsvModel;
-import ru.star.printer.model.PageCategory;
+import ru.star.printer.model.PageCategoryModel;
 import ru.star.printer.model.PagesPrinterModel;
 import ru.star.parser.json.JsonParser;
 import ru.star.utils.FileUtils;
@@ -25,10 +25,10 @@ class PagesPrinter implements Callable<Object>, CsvProducer {
 
     @Override
     public String call() {
-        for (PageCategory page : model.getPages()) {
+        for (PageCategoryModel page : model.getPages()) {
             String articleFromWiki = model.getWikiPrinterParams().getClient().getArticle(page.getCategory().getPageId());
 
-            Article article = JsonParser.parseArticle(articleFromWiki, page.getCategory().getPageId());
+            ArticleModel article = JsonParser.parseArticle(articleFromWiki, page.getCategory().getPageId());
             logger.debug(article);
 
             String fileName = createFileName(model.getDirName(), model.getCategoryId(), page.getPageNumber());

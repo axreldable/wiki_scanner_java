@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class PrintModel {
+public class DirNameModel {
     private String preventDirs;
     private String categoryId;
     private String category;

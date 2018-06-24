@@ -3,8 +3,11 @@ package ru.star.printer.model;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * Represents Wiki article.
+ */
 @ToString
 @Getter
-public class Category extends WikiModel {
-    private String type;
+public class ArticleModel {
+    private String extract;
 }

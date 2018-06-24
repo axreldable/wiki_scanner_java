@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PageCategory {
-    private Category category;
+public class PageCategoryModel {
+    private CategoryModel category;
     private int pageNumber;
 }

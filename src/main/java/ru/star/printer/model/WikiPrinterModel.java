@@ -6,7 +6,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class WikiPrinterModel {
-    private WikiPrinterParams params;
-    private PrintModel model;
-    private ExecutorModel executorModel;
+    private WikiPrinterParamsModel params;
+    private DirNameModel dirName;
+    private ExecutorModel executor;
 }

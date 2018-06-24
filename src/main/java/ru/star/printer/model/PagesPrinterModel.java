@@ -8,8 +8,8 @@ import java.util.List;
 @Builder
 @Getter
 public class PagesPrinterModel {
-    private List<PageCategory> pages;
+    private List<PageCategoryModel> pages;
     private String dirName;
     private String categoryId;
-    private WikiPrinterParams wikiPrinterParams;
+    private WikiPrinterParamsModel wikiPrinterParams;
 }

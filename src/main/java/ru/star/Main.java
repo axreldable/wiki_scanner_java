@@ -1,15 +1,14 @@
 package ru.star;
 
-import org.apache.log4j.Logger;
 import ru.star.config.ConfigWorker;
 import ru.star.config.exception.WrongConfigException;
 import ru.star.csv.CsvConsumer;
 import ru.star.http.WikiClient;
-import ru.star.printer.model.ExecutorModel;
-import ru.star.printer.model.PrintModel;
-import ru.star.printer.model.WikiPrinterModel;
-import ru.star.printer.model.WikiPrinterParams;
 import ru.star.printer.WikiPrinter;
+import ru.star.printer.model.DirNameModel;
+import ru.star.printer.model.ExecutorModel;
+import ru.star.printer.model.WikiPrinterModel;
+import ru.star.printer.model.WikiPrinterParamsModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,8 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
-    private final static Logger logger = Logger.getLogger(Main.class);
-
     public static void main(String[] args) throws InterruptedException, WrongConfigException {
         long startTime = System.currentTimeMillis();
 
@@ -37,17 +34,17 @@ public class Main {
 
         for (int i = 1; i <= categories.length; i++) {
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
-                    .params(WikiPrinterParams.builder()
+                    .params(WikiPrinterParamsModel.builder()
                             .client(new WikiClient())
                             .articleCounter(new AtomicInteger(0))
                             .printingCount(configWorker.getConfig().getPrintingCount())
                             .build())
-                    .model(PrintModel.builder()
+                    .dirName(DirNameModel.builder()
                             .category(categories[i - 1])
                             .categoryId("0" + i)
                             .preventDirs(configWorker.getConfig().getCrawlingResultsPath())
                             .build())
-                    .executorModel(ExecutorModel.builder()
+                    .executor(ExecutorModel.builder()
                             .executor(executorsForPages.get(i - 1))
                             .threadsCount(configWorker.getConfig().getCrawlingThreadsCount())
                             .build())
