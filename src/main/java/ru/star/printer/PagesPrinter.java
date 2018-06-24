@@ -53,7 +53,7 @@ class PagesPrinter implements Callable<Object>, CsvProducer {
                     .build());
 
             model.getWikiPrinterParams().getArticleCounter().incrementAndGet();
-            logger.debug(Thread.currentThread().getName() + " - " + model.getWikiPrinterParams().getArticleCounter().get());
+            logger.debug(model.getWikiPrinterParams().getArticleCounter().get());
             if (model.getWikiPrinterParams().getArticleCounter().get() >= model.getWikiPrinterParams().getPrintingCount()) return null;
         }
         return null;
