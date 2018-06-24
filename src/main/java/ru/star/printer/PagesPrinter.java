@@ -15,6 +15,9 @@ import java.util.concurrent.Callable;
 
 import static java.lang.String.format;
 
+/**
+ * Task for saving Wiki articles to files and adds csv models to the queue for adding to the result file.
+ */
 class PagesPrinter implements Callable<Object>, CsvProducer {
     private final static Logger logger = Logger.getLogger(PagesPrinter.class);
 
@@ -54,11 +57,20 @@ class PagesPrinter implements Callable<Object>, CsvProducer {
 
             model.getWikiPrinterParams().getArticleCounter().incrementAndGet();
             logger.debug(model.getWikiPrinterParams().getArticleCounter().get());
-            if (model.getWikiPrinterParams().getArticleCounter().get() >= model.getWikiPrinterParams().getPrintingCount()) return null;
+            if (model.getWikiPrinterParams().getArticleCounter().get() >= model.getWikiPrinterParams().getPrintingCount())
+                return null;
         }
         return null;
     }
 
+    /**
+     * Method for file name generation.
+     *
+     * @param dirName    - parent dir name
+     * @param categoryId - id of the category
+     * @param i          - order number
+     * @return generated file name
+     */
     private String createFileName(String dirName, String categoryId, int i) {
         return dirName + File.separator + categoryId + "_" + format("%03d", i);
     }

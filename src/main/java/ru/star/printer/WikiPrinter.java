@@ -16,6 +16,11 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static ru.star.utils.FileUtils.createDirs;
 
+/**
+ * Task for separate category.
+ * It creates directory for the Wiki category,
+ * sorts Wiki pages and prints them in several threads and starts sub tasks for sub categories printing.
+ */
 public class WikiPrinter implements Callable<Object> {
     private final static Logger logger = Logger.getLogger(WikiPrinter.class);
 
@@ -59,6 +64,14 @@ public class WikiPrinter implements Callable<Object> {
         return null;
     }
 
+    /**
+     * Sorts pages from the category and print them to the directory in several threads.
+     *
+     * @param categories - list of the pages and sub categories from the category
+     * @param dirName    - path to article storing
+     * @return was we printed enough articles
+     * @throws InterruptedException if any of sub tasks was interrupt
+     */
     private boolean printAllPages(List<CategoryModel> categories, String dirName) throws InterruptedException {
         AtomicInteger i = new AtomicInteger(0);
         List<PageCategoryModel> pages = categories.stream()
@@ -84,6 +97,13 @@ public class WikiPrinter implements Callable<Object> {
         return model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount();
     }
 
+    /**
+     * Starts tasks for printing sub categories.
+     *
+     * @param subCategories - sub categories for printing
+     * @param dirName       - path for categories storing
+     * @throws InterruptedException if any of sub tasks was interrupt
+     */
     private void printSubCategories(List<CategoryModel> subCategories, String dirName) throws InterruptedException {
         int i = 0;
         for (CategoryModel cat : subCategories) {
@@ -108,10 +128,25 @@ public class WikiPrinter implements Callable<Object> {
         }
     }
 
+    /**
+     * Method for dir name generation.
+     *
+     * @param preventDirs - parent dir name
+     * @param categoryId  - id of the category
+     * @param category    - name of the category
+     * @return generated dir name
+     */
     private String createDirName(String preventDirs, String categoryId, String category) {
         return preventDirs + (preventDirs.equals("") ? "" : File.separator) + categoryId + "_" + category;
     }
 
+    /**
+     * Split list of the pages in several partitions.
+     *
+     * @param ar            - list for splitting
+     * @param partitionSize - partition size
+     * @return list of the lists
+     */
     private List<List<PageCategoryModel>> split(List<PageCategoryModel> ar, int partitionSize) {
         List<List<PageCategoryModel>> rez = new ArrayList<>();
         for (int i = 0; i < ar.size(); i += partitionSize) {

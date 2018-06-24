@@ -19,6 +19,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Main class of the app.
+ * Parses config.
+ * Start threads for categories printing.
+ * And starts the thread for printing result file.
+ */
 public class Main {
     public static void main(String[] args) throws InterruptedException, WrongConfigException {
         long startTime = System.currentTimeMillis();
@@ -69,6 +75,13 @@ public class Main {
         System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 72115 millis
     }
 
+    /**
+     * Method for config initializing.
+     *
+     * @param parser - app Parser
+     * @return instance of config worker
+     * @throws WrongConfigException when the config is wrong
+     */
     private static ConfigWorker initConfig(WikiParser parser) throws WrongConfigException {
         ConfigWorker configWorker = new ConfigWorker("app_config.json", parser);
         configWorker.createCrawlingResultPath();
@@ -76,6 +89,13 @@ public class Main {
         return configWorker;
     }
 
+    /**
+     * Method for init several {@link ExecutorService}s.
+     *
+     * @param length       - length of the list of the {@link ExecutorService}s
+     * @param threadsCount - amount of threads in each {@link ExecutorService}
+     * @return list of the {@link ExecutorService}s
+     */
     private static List<ExecutorService> initExecutors(int length, int threadsCount) {
         List<ExecutorService> rez = new ArrayList<>(length);
         for (int i = 1; i <= length; i++) {
