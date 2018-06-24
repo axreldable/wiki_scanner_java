@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static ru.star.utils.FileUtils.createDir;
+import static ru.star.utils.FileUtils.createDirs;
 import static ru.star.utils.StringUtils.threeDigit;
 
 public class WikiPrinter implements Callable<Object> {
@@ -33,7 +33,7 @@ public class WikiPrinter implements Callable<Object> {
                 model.getDirName().getPreventDirs(),
                 model.getDirName().getCategoryId(),
                 model.getDirName().getCategory());
-        createDir(dirName);
+        createDirs(dirName);
         logger.info(
                 "Печатаю категорию - " + model.getDirName().getCategory() + ";" +
                         " articleCounter = " + model.getParams().getArticleCounter()

@@ -23,9 +23,9 @@ public class FileUtils {
         }
     }
 
-    public static Boolean createDir(String dirName) {
+    public static Boolean createDirs(String dirName) {
         File file = new File(dirName);
-        if (file.mkdir()) {
+        if (file.mkdirs()) {
             logger.debug("Create dir - " + dirName);
             return true;
         }

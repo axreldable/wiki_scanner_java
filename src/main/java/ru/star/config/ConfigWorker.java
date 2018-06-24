@@ -52,7 +52,7 @@ public class ConfigWorker {
         String crawlingResultsPath = config.getCrawlingResultsPath();
         if (!(new File(crawlingResultsPath).exists())) {
             logger.info("crawlingResultsPath doesn't exist");
-            FileUtils.createDir(crawlingResultsPath);
+            FileUtils.createDirs(crawlingResultsPath);
             logger.info(crawlingResultsPath + " created");
         }
     }
@@ -61,12 +61,12 @@ public class ConfigWorker {
      * Creates directories for results csv file if need it.
      */
     public void createResultFilePath() {
-        String resultCsvName = config.getResultCsvName();
-        File pathToResultFile = new File(resultCsvName).getParentFile();
-        if (!(pathToResultFile.exists())) {
-            logger.info("path to " + resultCsvName + " doesn't exist");
-            FileUtils.createDir(pathToResultFile.getName());
-            logger.info(pathToResultFile.getName() + " created");
+        File resultCsvPathFile = new File(config.getResultCsvName()).getParentFile();
+        if (!resultCsvPathFile.exists()) {
+            String resultCsvAbsPath = resultCsvPathFile.getAbsolutePath();
+            logger.info("path to " + resultCsvAbsPath + " doesn't exist");
+            FileUtils.createDirs(resultCsvAbsPath);
+            logger.info(resultCsvAbsPath + " created");
         }
     }
 
