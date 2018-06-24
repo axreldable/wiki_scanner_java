@@ -6,6 +6,9 @@ import ru.star.http.WikiClient;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Model for Wiki printer params.
+ */
 @Builder
 @Getter
 public class WikiPrinterParamsModel {

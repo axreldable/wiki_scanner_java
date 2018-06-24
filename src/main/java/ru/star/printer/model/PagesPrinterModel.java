@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.util.List;
 
+/**
+ * Model for configuring pages printer.
+ */
 @Builder
 @Getter
 public class PagesPrinterModel {

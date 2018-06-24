@@ -3,6 +3,9 @@ package ru.star.printer.model;
 import lombok.Builder;
 import lombok.Getter;
 
+/**
+ * Contains parameters for map directory name.
+ */
 @Builder
 @Getter
 public class DirNameModel {

@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.util.concurrent.ExecutorService;
 
+/**
+ * Model for executor and amount of it's threads.
+ */
 @Builder
 @Getter
 public class ExecutorModel {
