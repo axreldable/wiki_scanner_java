@@ -35,7 +35,7 @@ public class FileUtils {
 
     public static String readFromFile(String fileName) {
         try {
-            return new String(Files.readAllBytes(Paths.get(fileName)));
+            return new String(Files.readAllBytes(Paths.get(fileName)), StandardCharsets.UTF_8);
         } catch (IOException e) {
             logger.info("Exception during reading from file - " + fileName, e);
         }
