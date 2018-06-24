@@ -11,6 +11,10 @@ import java.nio.file.Paths;
 public class FileUtils {
     private final static Logger logger = Logger.getLogger(FileUtils.class);
 
+    private FileUtils() {
+        throw new UnsupportedOperationException("Utility classes are not supposed to be instantiated");
+    }
+
     public static void saveToFile(String text, String fileName) {
         try {
             Files.write(Paths.get(fileName), text.getBytes(StandardCharsets.UTF_8));
