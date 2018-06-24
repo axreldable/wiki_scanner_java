@@ -33,11 +33,11 @@ public class WikiClient {
 
     /**
      * GET methods for getting categories from Wiki.
-     * *
-     * * @param name - name of the category
-     * * @return Wiki response in String
      *
+     * @param name - name of the category
+     * @return Wiki response in String
      * @throws URISyntaxException when exception in Uri building occurs
+     * @throws IOException        when exception in response from Wiki reading occurs
      */
     public String getCategory(String name) throws URISyntaxException, IOException {
         try {
@@ -57,11 +57,11 @@ public class WikiClient {
 
     /**
      * GET method for getting the article from Wiki.
-     * *
-     * * @param id - article's id
-     * * @return Wiki response in String
      *
+     * @param id - article's id
+     * @return Wiki response in String
      * @throws URISyntaxException when exception in Uri building occurs
+     * @throws IOException        when exception in response from Wiki reading occurs
      */
     public String getArticle(String id) throws URISyntaxException, IOException {
         try {
@@ -84,6 +84,7 @@ public class WikiClient {
      *
      * @param uri - uri for GET method
      * @return String response from Server
+     * @throws IOException when exception in response from Wiki reading occurs
      */
     private String executeRequest(URI uri) throws IOException {
         try {
@@ -100,6 +101,12 @@ public class WikiClient {
         }
     }
 
+    /**
+     * Checks if the status ok or not.
+     *
+     * @param status status for checking
+     * @return check result
+     */
     private boolean isOk(int status) {
         return status >= 200 && status < 300;
     }
