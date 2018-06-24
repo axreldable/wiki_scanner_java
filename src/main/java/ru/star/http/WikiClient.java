@@ -1,6 +1,5 @@
 package ru.star.http;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -21,7 +20,7 @@ import java.net.URISyntaxException;
 public class WikiClient {
     private final static Logger logger = Logger.getLogger(WikiClient.class);
 
-    private String WIKI_API_URL = "http://ru.wikipedia.org/w/api.php";
+    private final static String WIKI_API_URL = "http://ru.wikipedia.org/w/api.php";
 
     private HttpClient client;
 
@@ -34,11 +33,13 @@ public class WikiClient {
 
     /**
      * GET methods for getting categories from Wiki.
+     * *
+     * * @param name - name of the category
+     * * @return Wiki response in String
      *
-     * @param name - name of the category
-     * @return Wiki response in String
+     * @throws URISyntaxException when exception in Uri building occurs
      */
-    public String getCategory(String name) {
+    public String getCategory(String name) throws URISyntaxException, IOException {
         try {
             return executeRequest((new URIBuilder(WIKI_API_URL)
                     .setParameter("action", "query")
@@ -49,18 +50,20 @@ public class WikiClient {
                     .setParameter("cmtitle", "Category:" + name)
                     .build()));
         } catch (URISyntaxException e) {
-            logger.info("Exception during uri building", e);
+            logger.error("Exception during uri building", e);
+            throw e;
         }
-        return null;
     }
 
     /**
      * GET method for getting the article from Wiki.
+     * *
+     * * @param id - article's id
+     * * @return Wiki response in String
      *
-     * @param id - article's id
-     * @return Wiki response in String
+     * @throws URISyntaxException when exception in Uri building occurs
      */
-    public String getArticle(String id) {
+    public String getArticle(String id) throws URISyntaxException, IOException {
         try {
             return executeRequest((new URIBuilder(WIKI_API_URL).setParameters()
                     .setParameter("action", "query")
@@ -72,8 +75,8 @@ public class WikiClient {
                     .build()));
         } catch (URISyntaxException e) {
             logger.info("Exception during uri building", e);
+            throw e;
         }
-        return null;
     }
 
     /**
@@ -82,19 +85,22 @@ public class WikiClient {
      * @param uri - uri for GET method
      * @return String response from Server
      */
-    private String executeRequest(URI uri) {
+    private String executeRequest(URI uri) throws IOException {
         try {
             HttpResponse response = client.execute(new HttpGet(uri));
-            int status = response.getStatusLine().getStatusCode();
-            if (status >= 200 && status < 300) {
-                HttpEntity entity = response.getEntity();
-                return entity != null ? EntityUtils.toString(entity) : null;
+            if (isOk(response.getStatusLine().getStatusCode())) {
+                return EntityUtils.toString(response.getEntity());
             } else {
-                logger.info("Bad response from wiki");
+                logger.error("Bad response from wiki - " + response.getStatusLine());
+                return null;
             }
         } catch (IOException e) {
-            logger.info("Exception during execute GET request", e);
+            logger.error("Exception during response reading", e);
+            throw e;
         }
-        return null;
+    }
+
+    private boolean isOk(int status) {
+        return status >= 200 && status < 300;
     }
 }

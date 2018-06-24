@@ -46,7 +46,7 @@ public class ConfigWorker {
     }
 
     /**
-     * Creates directories for crawling results if it's need.
+     * Creates directories for crawling results if need it.
      */
     public void createCrawlingResultPath() {
         String crawlingResultsPath = config.getCrawlingResultsPath();
@@ -58,7 +58,7 @@ public class ConfigWorker {
     }
 
     /**
-     * Creates directories for results csv file if it's need.
+     * Creates directories for results csv file if need it.
      */
     public void createResultFilePath() {
         String resultCsvName = config.getResultCsvName();

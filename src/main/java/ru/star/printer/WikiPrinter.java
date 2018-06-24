@@ -5,6 +5,8 @@ import ru.star.printer.model.*;
 import ru.star.printer.model.CategoryModel;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -26,7 +28,7 @@ public class WikiPrinter implements Callable<Object> {
     }
 
     @Override
-    public String call() throws InterruptedException {
+    public Object call() throws InterruptedException {
         if (model.getParams().getArticleCounter().get() >= model.getParams().getPrintingCount()) return null;
 
         String dirName = createDirName(
@@ -39,8 +41,13 @@ public class WikiPrinter implements Callable<Object> {
                         " articleCounter = " + model.getParams().getArticleCounter()
         );
 
-        String categoriesFromWiki = model.getParams().getClient().getCategory(model.getDirName().getCategory());
-        if (categoriesFromWiki == null) return null;
+        String categoriesFromWiki;
+        try {
+            categoriesFromWiki = model.getParams().getClient().getCategory(model.getDirName().getCategory());
+        } catch (URISyntaxException | IOException e) {
+            logger.error("Exception during get category from Wiki", e);
+            return null;
+        }
 
         List<CategoryModel> categories = parseCategories(categoriesFromWiki);
 

@@ -10,6 +10,8 @@ import ru.star.parser.json.JsonParser;
 import ru.star.utils.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
 import static ru.star.utils.StringUtils.threeDigit;
@@ -26,7 +28,13 @@ class PagesPrinter implements Callable<Object>, CsvProducer {
     @Override
     public String call() {
         for (PageCategoryModel page : model.getPages()) {
-            String articleFromWiki = model.getWikiPrinterParams().getClient().getArticle(page.getCategory().getPageId());
+            String articleFromWiki;
+            try {
+                articleFromWiki = model.getWikiPrinterParams().getClient().getArticle(page.getCategory().getPageId());
+            } catch (URISyntaxException | IOException e) {
+                logger.error("Exception during get article from Wiki", e);
+                continue;
+            }
 
             ArticleModel article = JsonParser.parseArticle(articleFromWiki, page.getCategory().getPageId());
             logger.debug(article);
