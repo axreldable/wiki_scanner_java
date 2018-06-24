@@ -11,17 +11,23 @@ import java.util.List;
  * Wiki response Json ConfigModel.
  */
 public class JsonParser {
+    private Gson gson;
+
+    public JsonParser() {
+        this.gson = new Gson();
+    }
+
     /**
      * Parse response for category request.
      *
      * @param categories - category response from Wiki
      * @return List of the {@link CategoryModel}s
      */
-    public static List<CategoryModel> parseCategories(String categories) {
+    public List<CategoryModel> parseCategories(String categories) {
         String jsonCategories = new com.google.gson.JsonParser().parse(categories)
                 .getAsJsonObject().get("query")
                 .getAsJsonObject().get("categorymembers").toString();
-        return Arrays.asList(new Gson().fromJson(jsonCategories, CategoryModel[].class));
+        return Arrays.asList(gson.fromJson(jsonCategories, CategoryModel[].class));
     }
 
     /**
@@ -31,15 +37,15 @@ public class JsonParser {
      * @param id      - article's id
      * @return Parsed {@link ArticleModel}
      */
-    public static ArticleModel parseArticle(String article, String id) {
+    public ArticleModel parseArticle(String article, String id) {
         String jsonArticle = new com.google.gson.JsonParser().parse(article)
                 .getAsJsonObject().get("query")
                 .getAsJsonObject().get("pages")
                 .getAsJsonObject().get(id).toString();
-        return new Gson().fromJson(jsonArticle, ArticleModel.class);
+        return gson.fromJson(jsonArticle, ArticleModel.class);
     }
 
-    public static <T> T parse(String jsonString, Class<T> clazz) {
-        return new Gson().fromJson(jsonString, clazz);
+    public <T> T parse(String jsonString, Class<T> clazz) {
+        return gson.fromJson(jsonString, clazz);
     }
 }

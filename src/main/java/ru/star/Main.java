@@ -4,6 +4,7 @@ import ru.star.config.ConfigWorker;
 import ru.star.config.exception.WrongConfigException;
 import ru.star.csv.CsvConsumer;
 import ru.star.http.WikiClient;
+import ru.star.parser.json.JsonParser;
 import ru.star.printer.WikiPrinter;
 import ru.star.printer.model.DirNameModel;
 import ru.star.printer.model.ExecutorModel;
@@ -22,7 +23,8 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, WrongConfigException {
         long startTime = System.currentTimeMillis();
 
-        ConfigWorker configWorker = initConfig();
+        JsonParser parser = new JsonParser();
+        ConfigWorker configWorker = initConfig(parser);
 
         String[] categories = configWorker.getConfig().getStartCategories();
         Arrays.sort(categories);
@@ -48,6 +50,7 @@ public class Main {
                             .executor(executorsForPages.get(i - 1))
                             .threadsCount(configWorker.getConfig().getCrawlingThreadsCount())
                             .build())
+                    .parser(parser)
                     .build());
             todo.add(printer);
         }
@@ -66,8 +69,8 @@ public class Main {
         System.out.println("Time taken: " + (endTime - startTime) + " millis"); // Time taken: 72115 millis
     }
 
-    private static ConfigWorker initConfig() throws WrongConfigException {
-        ConfigWorker configWorker = new ConfigWorker("app_config.json");
+    private static ConfigWorker initConfig(JsonParser parser) throws WrongConfigException {
+        ConfigWorker configWorker = new ConfigWorker("app_config.json", parser);
         configWorker.createCrawlingResultPath();
         configWorker.createResultFilePath();
         return configWorker;

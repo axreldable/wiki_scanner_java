@@ -24,9 +24,9 @@ public class ConfigWorker {
      * @param configPath - path to the config
      * @throws WrongConfigException throws when the config is wrong
      */
-    public ConfigWorker(String configPath) throws WrongConfigException {
+    public ConfigWorker(String configPath, JsonParser parser) throws WrongConfigException {
         String configJson = FileUtils.readFromFile(configPath);
-        this.config = JsonParser.parse(configJson, ConfigModel.class);
+        this.config = parser.parse(configJson, ConfigModel.class);
         validate();
     }
 

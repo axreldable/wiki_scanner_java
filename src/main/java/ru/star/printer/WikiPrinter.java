@@ -2,7 +2,6 @@ package ru.star.printer;
 
 import org.apache.log4j.Logger;
 import ru.star.printer.model.*;
-import ru.star.printer.model.CategoryModel;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +13,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static ru.star.parser.json.JsonParser.parseCategories;
 import static ru.star.utils.FileUtils.createDir;
 import static ru.star.utils.StringUtils.threeDigit;
 
@@ -49,7 +47,7 @@ public class WikiPrinter implements Callable<Object> {
             return null;
         }
 
-        List<CategoryModel> categories = parseCategories(categoriesFromWiki);
+        List<CategoryModel> categories = model.getParser().parseCategories(categoriesFromWiki);
 
         if (printAllPages(categories, dirName)) return null;
 
@@ -78,6 +76,7 @@ public class WikiPrinter implements Callable<Object> {
                     .pages(pagesList)
                     .dirName(dirName)
                     .categoryId(model.getDirName().getCategoryId())
+                    .parser(model.getParser())
                     .build()));
         }
 
@@ -103,6 +102,7 @@ public class WikiPrinter implements Callable<Object> {
                             .preventDirs(dirName)
                             .build())
                     .executor(model.getExecutor())
+                    .parser(model.getParser())
                     .build());
             printer.call();
         }
