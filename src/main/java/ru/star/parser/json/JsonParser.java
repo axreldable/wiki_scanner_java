@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Wiki response Json ConfigModel.
+ * Class for json parsing in the project.
  */
 public class JsonParser {
     private Gson gson;
@@ -27,7 +27,19 @@ public class JsonParser {
         String jsonCategories = new com.google.gson.JsonParser().parse(categories)
                 .getAsJsonObject().get("query")
                 .getAsJsonObject().get("categorymembers").toString();
-        return Arrays.asList(gson.fromJson(jsonCategories, CategoryModel[].class));
+        return parseArray(jsonCategories, CategoryModel[].class);
+    }
+
+    /**
+     * Convert json string to List of objects.
+     *
+     * @param jsonString - source json string
+     * @param arrayClazz - class of the array
+     * @param <T>        - parameter class
+     * @return result list
+     */
+    private <T> List<T> parseArray(String jsonString, Class<T[]> arrayClazz) {
+        return Arrays.asList(gson.fromJson(jsonString, arrayClazz));
     }
 
     /**
@@ -42,9 +54,17 @@ public class JsonParser {
                 .getAsJsonObject().get("query")
                 .getAsJsonObject().get("pages")
                 .getAsJsonObject().get(id).toString();
-        return gson.fromJson(jsonArticle, ArticleModel.class);
+        return parse(jsonArticle, ArticleModel.class);
     }
 
+    /**
+     * Convert json string to the object.
+     *
+     * @param jsonString - source json string
+     * @param clazz      - result of the result object
+     * @param <T>        - parameter class
+     * @return result object
+     */
     public <T> T parse(String jsonString, Class<T> clazz) {
         return gson.fromJson(jsonString, clazz);
     }
