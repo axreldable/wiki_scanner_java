@@ -3,6 +3,9 @@ package ru.star.config.model;
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;
 
+/**
+ * The config params.
+ */
 @Getter
 public class ConfigModel {
     @SerializedName("start_categories")
