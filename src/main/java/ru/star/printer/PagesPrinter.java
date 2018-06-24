@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
 
-import static ru.star.utils.StringUtils.threeDigit;
+import static java.lang.String.format;
 
 class PagesPrinter implements Callable<Object>, CsvProducer {
     private final static Logger logger = Logger.getLogger(PagesPrinter.class);
@@ -60,6 +60,6 @@ class PagesPrinter implements Callable<Object>, CsvProducer {
     }
 
     private String createFileName(String dirName, String categoryId, int i) {
-        return dirName + File.separator + categoryId + "_" + threeDigit("" + i);
+        return dirName + File.separator + categoryId + "_" + format("%03d", i);
     }
 }

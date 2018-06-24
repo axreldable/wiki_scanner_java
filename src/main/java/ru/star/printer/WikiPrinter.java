@@ -13,8 +13,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static ru.star.utils.FileUtils.createDirs;
-import static ru.star.utils.StringUtils.threeDigit;
 
 public class WikiPrinter implements Callable<Object> {
     private final static Logger logger = Logger.getLogger(WikiPrinter.class);
@@ -98,7 +98,7 @@ public class WikiPrinter implements Callable<Object> {
                             .build())
                     .dirName(DirNameModel.builder()
                             .category(nextCat)
-                            .categoryId(model.getDirName().getCategoryId() + "_" + threeDigit("" + i))
+                            .categoryId(model.getDirName().getCategoryId() + "_" + format("%03d", i))
                             .preventDirs(dirName)
                             .build())
                     .executor(model.getExecutor())
