@@ -2,7 +2,7 @@ package ru.star.printer.model;
 
 import lombok.Builder;
 import lombok.Getter;
-import ru.star.parser.json.JsonParser;
+import ru.star.parser.json.WikiParser;
 
 import java.util.List;
 
@@ -16,5 +16,5 @@ public class PagesPrinterModel {
     private String dirName;
     private String categoryId;
     private WikiPrinterParamsModel wikiPrinterParams;
-    private JsonParser parser;
+    private WikiParser parser;
 }
