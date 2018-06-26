@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'application'
+apply plugin: "jacoco"
 
 mainClassName = 'ru.star.Main'
 
@@ -23,4 +24,22 @@ distZip {
         from '.'
         include 'app_config.json'
     }
+}
+
+jacoco {
+    toolVersion = "0.8.1"
+    reportsDir = file("${project.buildDir}/reports/coverage")
+}
+
+jacocoTestReport {
+    reports {
+        csv.enabled = false
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+clean {
+    delete 'out'
+    clean
 }
