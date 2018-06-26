@@ -20,6 +20,8 @@ public class FileUtils {
 
     /**
      * Saves the text to file in UTF-8 encoding.
+     * Create the file if the path to the file exists.
+     * Rewrite file context if the file exists.
      *
      * @param text     - text for save
      * @param fileName - path to file
