@@ -1,5 +1,8 @@
 package ru.star;
 
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.HttpClients;
 import ru.star.config.ConfigWorker;
 import ru.star.config.exception.WrongConfigException;
 import ru.star.csv.CsvConsumer;
@@ -18,6 +21,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static ru.star.Constants.WIKI_API_URL;
 
 /**
  * Main class of the app.
@@ -43,7 +48,10 @@ public class Main {
         for (int i = 1; i <= categories.length; i++) {
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
                     .params(WikiPrinterParamsModel.builder()
-                            .client(new WikiClient())
+                            .client(new WikiClient(HttpClients.custom()
+                                    .setDefaultRequestConfig(RequestConfig.custom()
+                                            .setCookieSpec(CookieSpecs.STANDARD).build())
+                                    .build(), WIKI_API_URL))
                             .articleCounter(new AtomicInteger(0))
                             .printingCount(configWorker.getConfig().getPrintingCount())
                             .build())

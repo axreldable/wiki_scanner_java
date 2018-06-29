@@ -2,11 +2,8 @@ package ru.star.http;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
@@ -20,15 +17,12 @@ import java.net.URISyntaxException;
 public class WikiClient {
     private final static Logger logger = Logger.getLogger(WikiClient.class);
 
-    private final static String WIKI_API_URL = "http://ru.wikipedia.org/w/api.php";
-
     private HttpClient client;
+    private String wikiApiUrl;
 
-    public WikiClient() {
-        client = HttpClients.custom()
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setCookieSpec(CookieSpecs.STANDARD).build())
-                .build();
+    public WikiClient(HttpClient client, String wikiApiUrl) {
+        this.client = client;
+        this.wikiApiUrl = wikiApiUrl;
     }
 
     /**
@@ -41,7 +35,7 @@ public class WikiClient {
      */
     public String getCategory(String name) throws URISyntaxException, IOException {
         try {
-            return executeRequest((new URIBuilder(WIKI_API_URL)
+            return executeRequest((new URIBuilder(wikiApiUrl)
                     .setParameter("action", "query")
                     .setParameter("format", "json")
                     .setParameter("list", "categorymembers")
@@ -65,7 +59,7 @@ public class WikiClient {
      */
     public String getArticle(String id) throws URISyntaxException, IOException {
         try {
-            return executeRequest((new URIBuilder(WIKI_API_URL).setParameters()
+            return executeRequest((new URIBuilder(wikiApiUrl).setParameters()
                     .setParameter("action", "query")
                     .setParameter("format", "json")
                     .setParameter("prop", "extracts")
