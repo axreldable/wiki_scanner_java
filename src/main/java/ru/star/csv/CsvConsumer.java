@@ -20,12 +20,13 @@ public class CsvConsumer implements Runnable {
      *
      * @param fileName - path to result file.
      */
-    public CsvConsumer(String fileName) {
+    public CsvConsumer(String fileName) throws IOException {
         this.fileName = fileName;
         try {
             writer = new BufferedWriter(new FileWriter(fileName));
         } catch (IOException e) {
             logger.error("Couldn't write to file - " + fileName, e);
+            throw e;
         }
     }
 

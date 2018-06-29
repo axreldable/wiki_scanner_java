@@ -14,6 +14,7 @@ import ru.star.printer.model.ExecutorModel;
 import ru.star.printer.model.WikiPrinterModel;
 import ru.star.printer.model.WikiPrinterParamsModel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ import static ru.star.Constants.WIKI_API_URL;
  * And starts the thread for printing result file.
  */
 public class Main {
-    public static void main(String[] args) throws InterruptedException, WrongConfigException {
+    public static void main(String[] args) throws InterruptedException, WrongConfigException, IOException {
         long startTime = System.currentTimeMillis();
 
         WikiParser parser = new WikiParser();
