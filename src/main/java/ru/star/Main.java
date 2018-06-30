@@ -5,6 +5,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.HttpClients;
 import ru.star.config.ConfigWorker;
 import ru.star.config.exception.WrongConfigException;
+import ru.star.config.model.ConfigModel;
 import ru.star.csv.CsvConsumer;
 import ru.star.http.WikiClient;
 import ru.star.parser.json.WikiParser;
@@ -38,15 +39,15 @@ public class Main {
         long startTime = System.currentTimeMillis();
 
         WikiParser parser = new WikiParser(); // one instance for all threads
-        ConfigWorker configWorker = initConfig(parser);
+        ConfigModel config = initAndValidateConfig(parser);
 
-        String[] categories = configWorker.getConfig().getStartCategories();
+        String[] categories = config.getStartCategories();
         Arrays.sort(categories);
 
         ExecutorService categoryExecutor = Executors.newFixedThreadPool(categories.length);
         List<Callable<Object>> todo = new ArrayList<>(categories.length);
 
-        List<ExecutorService> executorsForPages = initExecutors(categories.length, configWorker.getConfig().getCrawlingThreadsCount());
+        List<ExecutorService> executorsForPages = initExecutors(categories.length, config.getCrawlingThreadsCount());
 
         for (int i = 1; i <= categories.length; i++) {
             WikiPrinter printer = new WikiPrinter(WikiPrinterModel.builder()
@@ -56,23 +57,23 @@ public class Main {
                                             .setCookieSpec(CookieSpecs.STANDARD).build())
                                     .build(), WIKI_API_URL))
                             .articleCounter(new AtomicInteger(0))
-                            .printingCount(configWorker.getConfig().getPrintingCount())
+                            .printingCount(config.getPrintingCount())
                             .build())
                     .dirName(DirNameModel.builder()
                             .category(categories[i - 1])
                             .categoryId("0" + i)
-                            .preventDirs(configWorker.getConfig().getCrawlingResultsPath())
+                            .preventDirs(config.getCrawlingResultsPath())
                             .build())
                     .executor(ExecutorModel.builder()
                             .executor(executorsForPages.get(i - 1))
-                            .threadsCount(configWorker.getConfig().getCrawlingThreadsCount())
+                            .threadsCount(config.getCrawlingThreadsCount())
                             .build())
                     .parser(parser)
                     .build());
             todo.add(printer);
         }
 
-        Thread thread = new Thread(new CsvConsumer(new BufferedWriter(new FileWriter(configWorker.getConfig().getResultCsvName()))));
+        Thread thread = new Thread(new CsvConsumer(new BufferedWriter(new FileWriter(config.getResultCsvName()))));
         thread.start();
 
         categoryExecutor.invokeAll(todo); // waits all tasks here
@@ -90,14 +91,14 @@ public class Main {
      * Method for config initializing.
      *
      * @param parser - app Parser
-     * @return instance of config worker
+     * @return instance of config model
      * @throws WrongConfigException when the config is wrong
      */
-    private static ConfigWorker initConfig(WikiParser parser) throws WrongConfigException {
+    private static ConfigModel initAndValidateConfig(WikiParser parser) throws WrongConfigException {
         ConfigWorker configWorker = new ConfigWorker("app_config.json", parser);
         configWorker.createCrawlingResultPath();
         configWorker.createResultFilePath();
-        return configWorker;
+        return configWorker.getConfig();
     }
 
     /**
