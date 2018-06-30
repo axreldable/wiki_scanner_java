@@ -14,6 +14,8 @@ import ru.star.printer.model.ExecutorModel;
 import ru.star.printer.model.WikiPrinterModel;
 import ru.star.printer.model.WikiPrinterParamsModel;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +37,7 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, WrongConfigException, IOException {
         long startTime = System.currentTimeMillis();
 
-        WikiParser parser = new WikiParser();
+        WikiParser parser = new WikiParser(); // one instance for all threads
         ConfigWorker configWorker = initConfig(parser);
 
         String[] categories = configWorker.getConfig().getStartCategories();
@@ -70,7 +72,7 @@ public class Main {
             todo.add(printer);
         }
 
-        Thread thread = new Thread(new CsvConsumer(configWorker.getConfig().getResultCsvName()));
+        Thread thread = new Thread(new CsvConsumer(new BufferedWriter(new FileWriter(configWorker.getConfig().getResultCsvName()))));
         thread.start();
 
         categoryExecutor.invokeAll(todo); // waits all tasks here

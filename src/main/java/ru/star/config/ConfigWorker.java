@@ -4,7 +4,7 @@ import lombok.Getter;
 import org.apache.log4j.Logger;
 import ru.star.config.exception.WrongConfigException;
 import ru.star.config.model.ConfigModel;
-import ru.star.parser.json.WikiParser;
+import ru.star.parser.json.JParser;
 import ru.star.utils.FileUtils;
 
 import java.io.File;
@@ -20,11 +20,11 @@ public class ConfigWorker {
 
     /**
      * Creates and validates the config.
-     *
      * @param configPath - path to the config
+     * @param parser - Parser that can parse json file
      * @throws WrongConfigException throws when the config is wrong
      */
-    public ConfigWorker(String configPath, WikiParser parser) throws WrongConfigException {
+    public ConfigWorker(String configPath, JParser parser) throws WrongConfigException {
         String configJson = FileUtils.readFromFile(configPath);
         this.config = parser.parse(configJson, ConfigModel.class);
         validate();

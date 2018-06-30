@@ -2,9 +2,8 @@ package ru.star.csv;
 
 import org.apache.log4j.Logger;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Add csv rows in result file in separate thread.
@@ -12,22 +11,15 @@ import java.io.IOException;
 public class CsvConsumer implements Runnable {
     private final static Logger logger = Logger.getLogger(CsvConsumer.class);
 
-    private BufferedWriter writer;
-    private String fileName;
+    private Writer writer;
 
     /**
      * Csv consumer initialisation.
      *
-     * @param fileName - path to result file.
+     * @param writer - writer
      */
-    public CsvConsumer(String fileName) throws IOException {
-        this.fileName = fileName;
-        try {
-            writer = new BufferedWriter(new FileWriter(fileName));
-        } catch (IOException e) {
-            logger.error("Couldn't write to file - " + fileName, e);
-            throw e;
-        }
+    public CsvConsumer(Writer writer) {
+        this.writer = writer;
     }
 
     @Override
@@ -44,18 +36,18 @@ public class CsvConsumer implements Runnable {
                 try {
                     writer.write(CsvQueueHolder.articles.take().toCsvRow() + separator);
                 } catch (IOException e1) {
-                    logger.error("Couldn't write to file - " + fileName, e1);
+                    logger.error("Fail to write", e1);
                 } catch (InterruptedException ignored) {
                 }
             }
             logger.info("Done print CSVs");
         } catch (IOException e) {
-            logger.error("Couldn't write to file - " + fileName, e);
+            logger.error("Fail to write", e);
         } finally {
             try {
                 writer.close();
             } catch (IOException e) {
-                logger.error("Couldn't close file - " + fileName, e);
+                logger.error("Couldn't close writer", e);
             }
         }
     }
