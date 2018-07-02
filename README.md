@@ -2,7 +2,7 @@
 Scans wikipedia and create directories which contains files with articles.
 
 Catalogs tree on Wiki has next structure:
-![alt text](https://github.com/axreldable/wiki_scanner_java/blob/master/wiki_structure.jpeg)
+![alt text](https://github.com/axreldable/wiki_scanner_java/blob/master/pict/wiki_structure.jpeg)
 
 The scanner converts this structure into directories with files.
 
@@ -21,7 +21,7 @@ Numbers has the same meaning and directory name ends with subcategory name.
 The article 07_020_001_008_011.txt belongs to the directory 07_020_001_008_Tenis and has 11 number.
 
 The scanner also makes report in csv format:
-- csv format table here
+![alt text](https://github.com/axreldable/wiki_scanner_java/blob/master/pict/result_table.png)
 
 In app configuration file you can change next parameters:
 - Wiki's started categories
