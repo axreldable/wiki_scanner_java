@@ -31,7 +31,7 @@ In app configuration file you can change next parameters:
 
 The scanner polls Wiki using wiki-api: https://ru.wikipedia.org/w/api.php.
 
-WWhat I have used in this program:
+What I have used in this program:
 - http requests for wiki polling
 - json parsing for parsing Wiki response
 - java.util.concurrent for parallelizing app work
