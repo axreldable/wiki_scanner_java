@@ -1,8 +1,8 @@
 # wiki_scanner_java
 Scans wikipedia and create directories which contains files with articles.
 
-Catalog tree on Wiki has structure:
-- wiki structure here
+Catalogs tree on Wiki has next structure:
+![alt text](https://github.com/axreldable/wiki_scanner_java/blob/master/wiki_structure.jpeg)
 
 The scanner converts this structure into directories with files.
 
